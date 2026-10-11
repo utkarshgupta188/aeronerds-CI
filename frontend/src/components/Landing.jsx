@@ -8,10 +8,10 @@ const REPO_URL = 'https://github.com/utkarshgupta188/aeronerds-CI'
 
 const Emblem = ({ size = 56 }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
-    <circle cx="20" cy="20" r="20" fill="#1A3560"/>
-    <circle cx="20" cy="20" r="16" fill="#E8620A"/>
-    <circle cx="20" cy="20" r="11" fill="#1A3560"/>
-    <circle cx="20" cy="20" r="7" fill="#E8620A"/>
+    <circle cx="20" cy="20" r="20" fill="#000080"/>
+    <circle cx="20" cy="20" r="16" fill="#FF9933"/>
+    <circle cx="20" cy="20" r="11" fill="#000080"/>
+    <circle cx="20" cy="20" r="7" fill="#FF9933"/>
     <circle cx="20" cy="20" r="3" fill="#fff"/>
     <path d="M20 4 L21.5 8 L20 7 L18.5 8 Z" fill="#fff"/>
     <path d="M36 20 L32 21.5 L33 20 L32 18.5 Z" fill="#fff"/>
@@ -258,7 +258,7 @@ export default function Landing({ lang, setLang, t, onOpen, onAsk }) {
         </div>
 
         <aside className="gov-col-side">
-          <section className="gov-panel">
+          <section className="gov-panel gov-panel-info">
             <h2 className="gov-panel-h">{t('Important information', 'महत्वपूर्ण जानकारी')}</h2>
             <div className="gov-panel-b">
               <dl className="gov-dl">
