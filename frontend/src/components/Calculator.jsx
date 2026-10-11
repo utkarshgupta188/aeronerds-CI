@@ -130,6 +130,12 @@ export default function Calculator({ lang, t }) {
               {result.far_note}
             </div>
           )}
+          {result.instant_approval && (
+            <div className="side-note" style={{marginTop:'0.4rem'}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              {result.instant_approval}
+            </div>
+          )}
           <div className="data-note">{result.data_note}</div>
         </div>
       )}
