@@ -8,7 +8,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
-**User story:** A citizen stands at the BMC counter and asks "My plot is 200 sq m on a 9 m road. What is the front setback, and what fee do I pay?" The clerk types the question, gets the answer (3.0 m — Rule 56(1)(a), ₹2,250 — Rule 21(3)(b)), shows the citizen the rule number, prints the guidance slip.
+**User story:** A citizen stands at the BMC counter and asks "My plot is 200 sq m on a 9 m road. What is the front setback, and what fee do I pay?" The clerk types the question, gets the answer (3.0 m — Rule 56(1)(a), ₹3,250 for an estimated 250 sq m built-up area — Rule 21(2)(ii) + 21(3)(b)), shows the citizen the rule number, prints the guidance slip.
 
 ---
 
@@ -68,16 +68,9 @@ Print a slip for the citizen from either the calculator or the assistant result.
 
 ## Accuracy on sample questions
 
-Evaluated on the 17 sample questions from the problem statement:
+The 17 sample questions are built into the Benchmark tab with reference answers checked against the rule text (Q1-Q15 point to a rule; Q16-Q17 are expected to return "Not found").
 
-| Category | Result |
-|---|---|
-| English questions Q1–13 | **13/13 answered correctly** |
-| Hindi questions Q14–15 | **2/2 answered correctly** |
-| Out-of-scope Q16–17 | **2/2 correctly said "Not found"** |
-| **Total** | **17/17** |
-
-Each answer cites the rule number and is grounded in the rule text provided to the model.
+The **Run Live** button sends all 17 to the model and marks each result as matching or not matching the expected found / not-found outcome. It needs `CEREBRAS_API_KEY`. Run it and record your own score here before relying on it; this repo does not claim a measured accuracy figure.
 
 ---
 
