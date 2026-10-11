@@ -6,7 +6,12 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Team:** AeroNerds
 
-**Members:** _add the 4–5 team member names here before submitting_
+**Members:**
+- Udit Jadhav (Team Leader)
+- Utkarsh Gupta
+- Sujay Ghosh
+- Raunak Ray
+- Abhirag Mishra
 
 **UI:** the React app in `frontend/` (assistant, calculator, latest updates, clerk login, amendment manager). The FastAPI backend serves only `/api/*`.
 
