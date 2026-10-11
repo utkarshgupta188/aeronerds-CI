@@ -29,11 +29,35 @@ def embed_rules(jsonl_path: str) -> Tuple[List[dict], TfidfVectorizer]:
     return rules, vectorizer
 
 
+_SYNONYMS = {
+    "setback": "open space",
+    "gap": "open space",
+    "front gap": "front open space",
+    "side gap": "side open space",
+    "rear gap": "rear open space",
+    "floors": "floor area ratio FAR",
+    "height": "height floor",
+    "coverage": "ground coverage",
+    "fee": "fees schedule",
+    "charge": "fees",
+}
+
+
+def _expand_query(query: str) -> str:
+    q = query.lower()
+    extras = []
+    for term, expansion in _SYNONYMS.items():
+        if term in q:
+            extras.append(expansion)
+    return query + " " + " ".join(extras) if extras else query
+
+
 def search(query: str, rules: List[dict], vectorizer: TfidfVectorizer, top_k: int = 5) -> List[dict]:
-    """Return top_k rules most similar to query."""
+    """Return top_k rules most similar to query, with synonym expansion."""
+    expanded = _expand_query(query)
     texts = [r["title"] + " " + r["text"] for r in rules]
     doc_matrix = vectorizer.transform(texts)
-    query_vec = vectorizer.transform([query])
+    query_vec = vectorizer.transform([expanded])
     scores = cosine_similarity(query_vec, doc_matrix)[0]
     top_indices = np.argsort(scores)[::-1][:top_k]
     return [rules[i] for i in top_indices]
