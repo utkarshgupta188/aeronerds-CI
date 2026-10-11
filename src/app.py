@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -8,7 +10,7 @@ load_dotenv()
 from src.embedder import embed_rules, search
 from src.answerer import answer
 
-DATA_PATH = "data/bhumi_vikas_rules.jsonl"
+DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bhumi_vikas_rules.jsonl")
 
 st.set_page_config(page_title="Bhumi Vikas Sahayak", page_icon="🏗️", layout="centered")
 

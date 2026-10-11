@@ -1,0 +1,43 @@
+.tabbar {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { color: var(--saffron); }
+
+.tab-btn.active {
+  color: var(--saffron);
+  border-bottom-color: var(--saffron);
+  font-weight: 700;
+}
+
+@media (max-width: 500px) {
+  .tab-btn span { display: none; }
+  .tab-btn { padding: 14px 16px; }
+}

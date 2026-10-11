@@ -1,0 +1,108 @@
+.header {
+  background: var(--navy);
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(26,53,96,0.25);
+}
+
+.header-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--saffron) 0%, #F5A623 50%, var(--saffron) 100%);
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-titles { line-height: 1.2; }
+
+.header-title-hi {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+.header-title-en {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.header-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 2px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.header-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 99px;
+  padding: 4px 12px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: #4ADE80;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(74,222,128,0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(74,222,128,0.3); }
+  50%       { box-shadow: 0 0 0 5px rgba(74,222,128,0.1); }
+}
+
+.lang-toggle {
+  background: var(--saffron);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lang-toggle:hover { background: var(--saffron-dark); }
+
+@media (max-width: 600px) {
+  .header-title-hi { font-size: 15px; }
+  .header-sub { display: none; }
+}

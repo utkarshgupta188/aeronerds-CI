@@ -1,0 +1,135 @@
+.benchmark {}
+
+.bench-start {
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.bench-stat-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 24px;
+}
+
+.bench-stat-num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.bench-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bench-run-btn { margin: 0 auto 12px; display: flex; }
+
+.bench-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.bench-loading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px;
+}
+
+.bench-results { display: flex; flex-direction: column; gap: 16px; }
+
+.bench-score-bar {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.score-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.score-num {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.score-badges { display: flex; gap: 8px; }
+
+.bench-table-wrap {
+  overflow-x: auto;
+  padding: 0;
+}
+
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.bench-table thead tr {
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+}
+
+.bench-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.bench-table td {
+  padding: 12px 16px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+.bench-table tr:last-child td { border-bottom: none; }
+
+.bench-table tr:hover td { background: var(--surface); }
+
+.bench-table tr.row-error td { background: #FFF5F5; }
+
+.bench-id {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.bench-question {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.bench-answer-preview {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .bench-stat-row { gap: 20px; }
+  .bench-stat-num { font-size: 28px; }
+}
