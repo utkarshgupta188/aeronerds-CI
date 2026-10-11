@@ -1,0 +1,108 @@
+.amendments {}
+
+.amend-form {
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.amend-form-title {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 14px; color: var(--navy);
+  margin-bottom: 18px;
+}
+
+.amend-fields { display: flex; flex-direction: column; gap: 0; }
+
+.amend-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 20px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 90px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.amend-submit-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 4px;
+}
+
+.amend-saved {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.amend-login-prompt {
+  display: flex; align-items: center; gap: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+}
+
+.amend-list-section { display: flex; flex-direction: column; gap: 12px; }
+
+.amend-list-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 4px;
+}
+
+.amend-list-title {
+  font-size: 14px; font-weight: 700; color: var(--navy);
+}
+
+.amend-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.amend-cards { display: flex; flex-direction: column; gap: 12px; }
+
+.amend-card { padding: 16px 18px; }
+
+.amend-card-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.amend-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.amend-date {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--text-muted);
+}
+
+.amend-card-title {
+  font-weight: 700; font-size: 14px; color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.amend-card-text {
+  font-size: 13.5px; color: var(--text-secondary);
+  line-height: 1.65; margin-bottom: 10px;
+  white-space: pre-wrap;
+}
+
+.amend-card-footer {
+  font-size: 11px; color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.amend-delete {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); padding: 4px 6px;
+  border-radius: 4px; transition: background 0.15s, color 0.15s;
+  display: flex; align-items: center;
+}
+.amend-delete:hover { background: var(--red-light); color: var(--red); }
+
+@media (max-width: 600px) {
+  .amend-row { grid-template-columns: 1fr; }
+}

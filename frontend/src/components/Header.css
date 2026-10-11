@@ -102,6 +102,28 @@
 
 .lang-toggle:hover { background: var(--saffron-dark); }
 
+.clerk-login-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.clerk-login-btn:hover { background: rgba(255,255,255,0.18); }
+
+.clerk-dot {
+  width: 8px; height: 8px;
+  background: #4ADE80; border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(74,222,128,0.35);
+}
+
 @media (max-width: 600px) {
   .header-title-hi { font-size: 15px; }
   .header-sub { display: none; }

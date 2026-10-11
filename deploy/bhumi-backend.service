@@ -1,0 +1,14 @@
+[Unit]
+Description=Bhumi Vikas Sahayak FastAPI backend
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/var/www/bhumi
+EnvironmentFile=/var/www/bhumi/.env
+ExecStart=/var/www/bhumi/venv/bin/python3 backend/main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// In prod, nginx proxies /api → backend container. In dev, Vite proxy does the same.
+const BASE = import.meta.env.VITE_API_URL || ''
 
 async function post(path, body) {
   const res = await fetch(`${BASE}${path}`, {

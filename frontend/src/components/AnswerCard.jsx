@@ -1,6 +1,60 @@
 import { useState } from 'react'
 import './AnswerCard.css'
 
+function renderInline(text) {
+  // Bold: **text**
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <strong key={i}>{p.slice(2, -2)}</strong>
+      : p
+  )
+}
+
+function AnswerBody({ text }) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const elements = []
+  let bulletGroup = []
+
+  function flushBullets() {
+    if (bulletGroup.length) {
+      elements.push(
+        <ul key={`ul-${elements.length}`} className="answer-bullets">
+          {bulletGroup.map((b, i) => <li key={i}>{renderInline(b)}</li>)}
+        </ul>
+      )
+      bulletGroup = []
+    }
+  }
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim()
+    if (!trimmed) { flushBullets(); return }
+
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      bulletGroup.push(trimmed.slice(2))
+    } else if (/^\*\*[^*]+:\*\*/.test(trimmed)) {
+      flushBullets()
+      // Section header like **Answer:** or **Key Points:**
+      const m = trimmed.match(/^\*\*([^*]+):\*\*\s*(.*)/)
+      const label = m[1]
+      const rest = m[2].trim()
+      elements.push(
+        <div key={i} className="answer-section">
+          <span className="answer-section-label">{label}</span>
+          {rest && <span>{renderInline(rest)}</span>}
+        </div>
+      )
+    } else {
+      flushBullets()
+      elements.push(<p key={i}>{renderInline(trimmed)}</p>)
+    }
+  })
+  flushBullets()
+  return <>{elements}</>
+}
+
 export default function AnswerCard({ result, lang, t, question }) {
   const [showSources, setShowSources] = useState(false)
 
@@ -72,7 +126,7 @@ export default function AnswerCard({ result, lang, t, question }) {
       </div>
 
       <div className="answer-text" lang={result.language === 'hi' ? 'hi' : 'en'}>
-        {result.answer_text}
+        <AnswerBody text={result.answer_text} />
       </div>
 
       {result.source_excerpts?.length > 0 && (

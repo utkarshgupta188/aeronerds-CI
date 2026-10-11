@@ -13,36 +13,67 @@ _AMENDMENT_2026 = (
     "IMPORTANT — 28 August 2026 amendment to Rule 2(5)(c): "
     "Plots up to 500 sq m that conform to the Development Plan are now EXEMPT from "
     "obtaining a separate T&CP development permission before building sanction. "
-    "This amendment is NOT in the provided rule text (which ends 6 March 2025) — "
-    "state it explicitly when relevant."
+    "State this explicitly when the question is about development permission for small plots."
 )
 
 _SYSTEM_EN = f"""You are a building-rules assistant for Bhopal Municipal Corporation clerks.
-Answer questions using ONLY the rule text provided below, plus the amendment note below.
+Answer questions using ONLY the rule text provided below.
 If the provided rules do not contain the answer, respond with exactly the word NOT_FOUND and nothing else.
-Rules are consolidated to 6 March 2025. Always include this date note in your answer.
-Never give legal advice. Always state the rule number(s) you used.
-Keep answers concise (under 150 words). The clerk decides; you point to the rule.
+Rules are consolidated to 6 March 2025. Never give legal advice. Always state the rule number(s) you used.
+Format your answer in clear sections using this structure:
+**Answer:** [direct answer in 1-2 sentences]
+**Key Points:**
+- [bullet point 1]
+- [bullet point 2]
+**Rule Reference:** Rule [number] — [title]
+**Note:** Based on rules consolidated to 6 March 2025. The clerk decides.
 
 {_AMENDMENT_2026}"""
 
 _SYSTEM_HI = f"""आप भोपाल नगर पालिका निगम के क्लर्क के लिए एक भवन-नियम सहायक हैं।
-नीचे दिए गए नियम पाठ और संशोधन नोट का उपयोग करके ही प्रश्नों का उत्तर दें।
+नीचे दिए गए नियम पाठ का उपयोग करके ही प्रश्नों का उत्तर दें।
 यदि दिए गए नियमों में उत्तर नहीं है, तो केवल NOT_FOUND लिखें।
-नियम 6 मार्च 2025 तक के हैं। उत्तर में यह तारीख अवश्य बताएं।
-कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
-उत्तर संक्षिप्त रखें (150 शब्दों से कम)।
+नियम 6 मार्च 2025 तक के हैं। कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
+उत्तर इस format में दें:
+**उत्तर:** [सीधा जवाब 1-2 वाक्यों में]
+**मुख्य बिंदु:**
+- [बिंदु 1]
+- [बिंदु 2]
+**नियम संदर्भ:** नियम [संख्या] — [शीर्षक]
+**नोट:** नियम 6 मार्च 2025 तक के हैं। अंतिम निर्णय क्लर्क का है।
 
-महत्वपूर्ण — 28 अगस्त 2026 का संशोधन, नियम 2(5)(ग): 500 वर्ग मीटर तक के भूखंड जो विकास योजना के अनुरूप हैं, उन्हें भवन स्वीकृति से पहले अलग T&CP विकास अनुमति लेने से छूट मिली है।"""
+महत्वपूर्ण — 28 अगस्त 2026 संशोधन, नियम 2(5)(ग): 500 वर्ग मीटर तक के भूखंड जो विकास योजना के अनुरूप हैं, उन्हें भवन स्वीकृति से पहले अलग T&CP विकास अनुमति लेने से छूट मिली है।"""
 
-_AMENDMENT_NOTE = "\n\n_(Based on rules consolidated to 6 March 2025. Amendments after that date are not included — verify against the current gazette.)_"
+_SYSTEM_HINGLISH = f"""You are a building-rules assistant for Bhopal Municipal Corporation clerks.
+Answer questions using ONLY the rule text provided below.
+If the provided rules do not contain the answer, respond with exactly the word NOT_FOUND and nothing else.
+The user is asking in Hinglish (Hindi-English mix). Reply in Hinglish — use simple Hindi words mixed with English terms for technical/legal words.
+Rules are consolidated to 6 March 2025. Never give legal advice. Always state the rule number(s).
+Format your answer in clear sections:
+**Answer:** [direct answer in Hinglish, 1-2 sentences]
+**Key Points:**
+- [bullet in Hinglish]
+- [bullet in Hinglish]
+**Rule Reference:** Rule [number] — [title]
+**Note:** Yeh rules 6 March 2025 tak ke hain. Final decision clerk ka hoga.
+
+{_AMENDMENT_2026}"""
+
+_AMENDMENT_NOTE = "\n\n_(Based on rules consolidated to 6 March 2025. Verify against the current gazette for amendments after that date.)_"
 
 _RULE_RE = re.compile(r"(?:[Rr]ules?|नियम)\s*\(?(\d+(?:-[A-Za-z]+)?(?:[A-Za-z])?)\)?")
+
+_HINGLISH_MARKERS = re.compile(
+    r"\b(kya|hai|hain|ka|ki|ke|kaise|kitna|kitni|chahiye|lagta|lagti|nahi|nahin|aur|ya|mera|meri|mujhe|karna|bata|batao|dono|sab|agar|toh|matlab|please|bhi|se|par|pe|wala|wali|liye|hota|hoti)\b",
+    re.IGNORECASE
+)
 
 
 def _detect_language(text: str) -> str:
     if re.search(r"[ऀ-ॿ]", text):
         return "hi"
+    if _HINGLISH_MARKERS.search(text):
+        return "hinglish"
     return "en"
 
 
@@ -53,7 +84,12 @@ def _is_not_found(text: str) -> bool:
 
 def answer(question: str, chunks: List[dict]) -> dict:
     lang = _detect_language(question)
-    system = _SYSTEM_HI if lang == "hi" else _SYSTEM_EN
+    if lang == "hi":
+        system = _SYSTEM_HI
+    elif lang == "hinglish":
+        system = _SYSTEM_HINGLISH
+    else:
+        system = _SYSTEM_EN
 
     rule_text = "\n\n".join(
         f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
@@ -75,6 +111,7 @@ def answer(question: str, chunks: List[dict]) -> dict:
             "answer_text": "Error: CEREBRAS_API_KEY not set.",
             "rule_numbers": [],
             "source_excerpts": [],
+            "chunks": [],
             "not_found": False,
             "language": lang,
             "error": True,
@@ -84,6 +121,7 @@ def answer(question: str, chunks: List[dict]) -> dict:
             "answer_text": f"Error contacting Cerebras API: {exc}",
             "rule_numbers": [],
             "source_excerpts": [],
+            "chunks": [],
             "not_found": False,
             "language": lang,
             "error": True,
@@ -95,9 +133,10 @@ def answer(question: str, chunks: List[dict]) -> dict:
 
     if finish_reason == "length" or raw is None:
         return {
-            "answer_text": "Error: response was cut off. Try a shorter question or fewer rules.",
+            "answer_text": "Error: response was cut off. Try a shorter question.",
             "rule_numbers": [],
             "source_excerpts": [],
+            "chunks": [],
             "not_found": False,
             "language": lang,
             "error": True,
@@ -105,7 +144,6 @@ def answer(question: str, chunks: List[dict]) -> dict:
 
     text = raw.strip()
     not_found = _is_not_found(text)
-
     rule_numbers = _RULE_RE.findall(text)
 
     source_excerpts = [
@@ -116,10 +154,11 @@ def answer(question: str, chunks: List[dict]) -> dict:
         for c in chunks
     ]
 
-    if not_found:
-        answer_text = "Not found in the rules (as consolidated to 6 March 2025)."
-    else:
-        answer_text = text + _AMENDMENT_NOTE
+    answer_text = (
+        "Not found in the rules (as consolidated to 6 March 2025)."
+        if not_found
+        else text + _AMENDMENT_NOTE
+    )
 
     return {
         "answer_text": answer_text,
