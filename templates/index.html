@@ -552,7 +552,7 @@ body {
   <button class="gov-nav-link" onclick="switchTab('benchmark');setNavActive(this)">
     <i class="ph ph-chart-bar"></i>
     <span data-hi="सटीकता" data-en="Benchmark">सटीकता</span>
-    <span class="nav-badge green">17/17</span>
+    <span class="nav-badge green">17</span>
   </button>
   <button class="gov-nav-link" onclick="openSlipModal()">
     <i class="ph ph-printer"></i>
@@ -589,8 +589,8 @@ body {
     </button>
     <button class="main-tab-btn" id="tab-btn-benchmark" onclick="switchTab('benchmark')">
       <i class="ph ph-chart-bar"></i>
-      <span data-hi="सटीकता 17/17" data-en="Benchmark 17/17">सटीकता 17/17</span>
-      <span class="tab-badge">✓</span>
+      <span data-hi="सटीकता (17 प्रश्न)" data-en="Benchmark (17 Qs)">सटीकता (17 प्रश्न)</span>
+      
     </button>
   </div>
 
@@ -745,6 +745,10 @@ body {
           <i class="ph ph-file-text"></i>
           <div class="note-text" id="rDevPermission"></div>
         </div>
+        <div class="note-row side">
+          <i class="ph ph-stack"></i>
+          <div class="note-text" id="rFarNote"></div>
+        </div>
       </div>
       <div style="text-align:right;">
         <button class="btn btn-primary btn-sm" onclick="openSlipModalFromCalc()">
@@ -768,8 +772,8 @@ body {
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="bench-score">
           <div>
-            <div class="bench-score-big" id="benchScoreVal">15/17</div>
-            <div class="bench-score-label" data-hi="स्थैतिक परीक्षण" data-en="Static Test">स्थैतिक परीक्षण</div>
+            <div class="bench-score-big" id="benchScoreVal">17 Qs</div>
+            <div class="bench-score-label" data-hi="संदर्भ उत्तर (नियम पाठ से जांचे)" data-en="Reference answers (checked vs rule text)">संदर्भ उत्तर (नियम पाठ से जांचे)</div>
           </div>
         </div>
         <button class="btn btn-navy btn-sm" onclick="runLiveBenchmark()" id="liveBenchBtn">
@@ -973,13 +977,14 @@ function renderAnswer(data) {
   text.className = 'answer-text ' + (data.not_found ? 'not-found' : 'found-yes');
   text.textContent = data.answer_text || (lang === 'hi' ? 'कोई उत्तर नहीं मिला।' : 'No answer found.');
 
-  // Sources
-  if (data.chunks && data.chunks.length > 0) {
+  // Sources — API returns chunks (list of {rule, title, text}) or source_excerpts (strings)
+  const chunkList = data.chunks || [];
+  if (chunkList.length > 0) {
     srcToggle.style.display = 'flex';
-    srcExcerpts.innerHTML = data.chunks.map(c => `
+    srcExcerpts.innerHTML = chunkList.map(c => `
       <div class="source-excerpt-item">
-        <div class="source-excerpt-rule">${c.rule_number ? 'Rule ' + c.rule_number : 'Reference'}</div>
-        <div class="source-excerpt-text">${(c.text || '').substring(0, 280)}${c.text && c.text.length > 280 ? '…' : ''}</div>
+        <div class="source-excerpt-rule">Rule ${c.rule} — ${c.title || ''}</div>
+        <div class="source-excerpt-text">${(c.text || '').substring(0, 300)}${c.text && c.text.length > 300 ? '…' : ''}</div>
       </div>`).join('');
     if (sourcesOpen) srcExcerpts.classList.add('open');
   } else {
@@ -1082,6 +1087,7 @@ function renderCalcResults(d) {
   document.getElementById('rSideNote').textContent = d.side_note;
   document.getElementById('rLiftNote').textContent = d.lift_note;
   document.getElementById('rDevPermission').textContent = d.dev_permission;
+  document.getElementById('rFarNote').textContent = d.far_note || '';
 
   const resultsDiv = document.getElementById('calcResults');
   resultsDiv.style.display = 'block';
@@ -1091,20 +1097,20 @@ function renderCalcResults(d) {
 /* ─── BENCHMARK ──────────────────────────────────────── */
 const BENCH_QUESTIONS = [
   { id:'1', q:'My house faces a 10 m wide street and will be 9 m tall. How much open space do I leave at the front?', rule:'56(1)(a)', answer:'3.6 m front setback (10 m road falls in 9–12 m slab)', oos:false },
-  { id:'2', q:'I want a farm house on agricultural land. What is the minimum plot size and the maximum FAR?', rule:'62', answer:'Minimum 2000 sqm; FAR 0.10 for farm houses on agricultural land', oos:false },
-  { id:'3', q:'My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?', rule:'13', answer:'Valid for 3 years; renewable once for a further 3 years', oos:false },
-  { id:'4', q:"I applied for building permission and the authority has not replied. What happens if they miss the deadline?", rule:'23', answer:'Deemed approval after statutory period (30 days for simple cases)', oos:false },
-  { id:'5', q:'How far must my balcony stay from a low-voltage overhead electric line, vertically and horizontally?', rule:'90', answer:'Vertical clearance 2.5 m; horizontal clearance 1.2 m (low voltage)', oos:false },
-  { id:'6', q:'Who is allowed to sign and submit my building plans?', rule:'18', answer:'A licensed architect, engineer, or structural engineer registered with the authority', oos:false },
-  { id:'7', q:'What documents go with an application for building permission?', rule:'17', answer:'Site plan, building plans, ownership proof, NOCs, fee receipt, structural drawing', oos:false },
+  { id:'2', q:'I want a farm house on agricultural land. What is the minimum plot size and the maximum FAR?', rule:'17', answer:'Minimum plot 0.40 hectare; maximum FAR 0.10 (also max height 7.5 m, 7.5 m open space all sides)', oos:false },
+  { id:'3', q:'My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?', rule:'23', answer:'Valid 3 years (23(1)); revalidation allowed for two consecutive terms of one year each, then fresh application (23(2))', oos:false },
+  { id:'4', q:"I applied for building permission and the authority has not replied. What happens if they miss the deadline?", rule:'28', answer:'Permission is deemed sanctioned if refusal is not intimated within the period in Section 30(5) of the Act; not for authorised Architect/Engineer applications', oos:false },
+  { id:'5', q:'How far must my balcony stay from a low-voltage overhead electric line, vertically and horizontally?', rule:'52', answer:'Low/medium voltage lines: 2.5 m vertically and 1.2 m horizontally; no balcony/verandah that violates this', oos:false },
+  { id:'6', q:'Who is allowed to sign and submit my building plans?', rule:'18, 26', answer:'Plans signed by licensed architect, structural engineer, engineer, supervisor or town planner (per Rule 26), and also signed by the owner/applicant', oos:false },
+  { id:'7', q:'What documents go with an application for building permission?', rule:'14, 16', answer:'Application fee receipt, key plan, site plan, building plans, service plans, project report, proof of ownership, authorisation, parking plans, supervision certificate', oos:false },
   { id:'8', q:'What is the fee for building permission for a residential house?', rule:'21(2)(ii)+21(3)(b)', answer:'Application fee ₹1/sqm (Rule 21(2)(ii)) + slab-based sanction fee (Rule 21(3)(b)), e.g. ≤75 sqm→₹750', oos:false },
-  { id:'9', q:'Can I change my plan after it is sanctioned?', rule:'26', answer:'Yes, a revised plan must be submitted and re-sanctioned before commencing changed work', oos:false },
+  { id:'9', q:'Can I change my plan after it is sanctioned?', rule:'24', answer:'Deviation not allowed if it affects front open space, exceeds 30% of permissible FAR, or touches parking, road, water bodies; else compounding fee may apply', oos:false },
   { id:'10', q:'What is the minimum rear open space for a 150 sq m residential plot?', rule:'56(2)(a)', answer:'1.5 m rear setback (40–150 sqm plot slab)', oos:false },
   { id:'11', q:'Do I need separate development permission for a 300 sq m plot that matches the Development Plan?', rule:'2(5)(c)', answer:'No — August 2026 amendment exempts plots ≤500 sqm from separate T&CP development permission', oos:false },
-  { id:'12', q:'Which rule decides what happens when the Development Plan and these rules disagree?', rule:'103', answer:'Rule 103: the Development Plan prevails over these Rules wherever there is a conflict', oos:false },
-  { id:'13', q:'What are the rules for lifts in a building taller than 15 m?', rule:'83', answer:'Lift is mandatory for buildings exceeding 12.5 m height; NBC Part-VIII specifications apply', oos:false },
+  { id:'12', q:'Which rule decides what happens when the Development Plan and these rules disagree?', rule:'103', answer:'Development Plan norms apply; if they differ from these rules the Director sends a proposal to Government, whose decision is final', oos:false },
+  { id:'13', q:'What are the rules for lifts in a building taller than 15 m?', rule:'83', answer:'Lift must be provided above 12.5 m height; design per NBC Part-VIII Section 5; lift details with application (Appendix A-2(A))', oos:false },
   { id:'14', q:'मेरा प्लॉट 200 वर्ग मीटर का है और सामने 9 मीटर चौड़ी सड़क है। आगे कितनी जगह खाली छोड़नी होगी?', rule:'56(1)(a)', answer:'3 मीटर आगे खुला छोड़ना होगा (9 मी. तक की सड़क)', oos:false },
-  { id:'15', q:'बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?', rule:'21', answer:'नियम 21(2)(ii): ₹1/वर्ग मीटर आवेदन शुल्क + नियम 21(3)(b): निर्मित क्षेत्र के अनुसार स्वीकृति शुल्क', oos:false },
+  { id:'15', q:'बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?', rule:'21(2)(ii), 21(3)(b)', answer:'नियम 21(2)(ii): ₹1/वर्ग मीटर आवेदन शुल्क + नियम 21(3)(b): निर्मित क्षेत्र के अनुसार स्वीकृति शुल्क', oos:false },
   { id:'16', q:'How do I pay my property tax online?', rule:'—', answer:'Out of scope — not covered in MP Bhumi Vikas Rules 2012', oos:true },
   { id:'17', q:'What is the current market rate for land in Kolar Road, Bhopal?', rule:'—', answer:'Out of scope — not covered in MP Bhumi Vikas Rules 2012', oos:true },
 ];
@@ -1118,7 +1124,7 @@ function buildBenchTable(rows) {
       ? '<span class="bench-status-oos">✓ Not Found (Correct)</span>'
       : (row.live
           ? (row.live_ok ? '<span class="bench-status-ok">✓ Answered</span>' : '<span class="bench-status-oos">✗ Wrong</span>')
-          : '<span class="bench-status-ok">✓ Answered</span>');
+          : '<span class="bench-status-running">Reference</span>');
     const ruleHtml = row.rule !== '—' ? '<span class="rule-chip">' + row.rule + '</span>' : '<span style="color:var(--text-muted)">—</span>';
     const tr = document.createElement('tr');
     if (isOos) tr.className = 'out-of-scope';
@@ -1198,6 +1204,7 @@ function openSlipModalFromCalc() {
     ['आगे खुला / Front Setback', d.front_setback.value + ' m', 'Rule ' + d.front_setback.rule],
     ['पीछे खुला / Rear Setback', d.rear_setback.value + ' m', 'Rule ' + d.rear_setback.rule],
     ['कुल शुल्क / Total Fee', d.permission_fee.value != null ? '₹' + d.permission_fee.value.toLocaleString('en-IN') : '—', 'Rule ' + d.permission_fee.rule],
+    ['FAR / अधिकतम फर्श क्षेत्र', d.far_note || '—', null],
     ['लिफ्ट / Lift', d.lift_note, null],
     ['विकास अनुमति / Dev Permission', d.dev_permission, null],
     ['तारीख / Date', new Date().toLocaleDateString('hi-IN'), null],

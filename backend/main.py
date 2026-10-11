@@ -184,6 +184,26 @@ def calculate(req: CalcRequest):
         "T&CP development permission required before building sanction (Rule 12, plot > 500 sq m)"
     )
 
+    if req.building_type == "residential":
+        max_floor_area = round(req.plot_area * 1.25, 1)
+        far_note = (
+            f"FAR 1.25 (Rule 61, Table 8) → max total floor area {max_floor_area:g} sq m on this plot. "
+            "Number of floors is not fixed by these rules: it follows from ground coverage and height set in the "
+            "Development Plan (Rule 103); up to 12.5 m height needs no lift (Rule 83)."
+        )
+    elif req.building_type == "farm_house":
+        far_note = (
+            "Farm house (Rule 17): min plot 0.40 ha, max FAR 0.10, max height 7.5 m, "
+            "7.5 m open space on all sides."
+        )
+        max_floor_area = round(req.plot_area * 0.10, 1)
+    else:
+        max_floor_area = None
+        far_note = (
+            "Commercial FAR depends on the centre category in Rule 61, Table 8 "
+            "(1.25 to 2.50); check the Development Plan (Rule 103). Height above 12.5 m: Rule 42, Table 4."
+        )
+
     side_note = "Rule 56(3): detached building — 3 m both sides; semi-detached — 3 m one side; row-type — nil."
 
     return {
@@ -192,6 +212,8 @@ def calculate(req: CalcRequest):
         "permission_fee": fee,
         "lift_note": lift_note,
         "dev_permission": dev_permission,
+        "far_note": far_note,
+        "max_floor_area": max_floor_area,
         "side_note": side_note,
         "data_note": "Consolidated to 6 March 2025. Verify against the official gazette.",
     }
