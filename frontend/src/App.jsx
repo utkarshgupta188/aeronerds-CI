@@ -7,7 +7,6 @@ import Header from './components/Header.jsx'
 import TabBar from './components/TabBar.jsx'
 import Calculator from './components/Calculator.jsx'
 import Assistant from './components/Assistant.jsx'
-import Benchmark from './components/Benchmark.jsx'
 import AmendmentManager from './components/AmendmentManager.jsx'
 import LoginModal from './components/LoginModal.jsx'
 import './App.css'
@@ -47,7 +46,6 @@ export default function App() {
         {current === 'assistant' && <Assistant lang={lang} t={t} initialQuestion={prefill} />}
         {current === 'calculator' && <Calculator lang={lang} t={t} />}
         {current === 'updates' && updates.length > 0 && <LatestUpdates amendments={updates} t={t} onAsk={askAbout} />}
-        {current === 'benchmark' && <Benchmark lang={lang} t={t} />}
         {current === 'amendments' && user && <AmendmentManager user={user} t={t} />}
       </main>
       {showLogin && <LoginModal user={user} onClose={() => setShowLogin(false)} t={t} />}
