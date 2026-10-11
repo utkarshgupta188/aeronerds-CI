@@ -8,7 +8,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Members:** _add the 4–5 team member names here before submitting_
 
-**Which UI is the product:** `templates/index.html`, served by FastAPI at `/` — this is what the run steps below start. `frontend/` is an alternate React build (with Firebase login and an amendment manager) and is not needed to run the tool.
+**UI:** the React app in `frontend/` (Vite, port 5173), talking to the FastAPI backend on port 8000.
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
@@ -24,23 +24,26 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
    cd aeronerds-CI
    ```
 
-2. **Install dependencies**
+2. **Install backend dependencies and set your Cerebras API key**
    ```bash
    pip install -r requirements.txt
-   ```
-
-3. **Set your Cerebras API key**
-   ```bash
    cp .env.example .env
    # Edit .env and set: CEREBRAS_API_KEY=your_key_here
    ```
 
-4. **Start the server**
+3. **Start the backend (API on port 8000)**
    ```bash
    uvicorn backend.main:app --host 0.0.0.0 --port 8000
    ```
 
-5. **Open** `http://localhost:8000` in your browser.
+4. **Start the frontend (port 5173)**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+5. **Open** `http://localhost:5173` in your browser.
 
 ---
 
@@ -119,7 +122,7 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 | Retrieval | TF-IDF + cosine similarity (scikit-learn) with synonym and Hindi keyword expansion |
 | Generation | Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk` |
 | Backend | FastAPI + uvicorn |
-| Frontend | Single-file HTML/CSS/JS — no build step, served directly by FastAPI |
+| Frontend | React + Vite (`frontend/`) |
 | Data | `data/bhumi_vikas_rules.jsonl` — 106 rules, one per line |
 
 ---
@@ -128,7 +131,6 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `GET /` | GET | Serves the UI |
 | `POST /api/ask` | POST | `{question, top_k}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
 | `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |

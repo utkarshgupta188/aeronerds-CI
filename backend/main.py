@@ -3,7 +3,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
@@ -23,13 +22,6 @@ app.add_middleware(
 )
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bhumi_vikas_rules.jsonl")
-TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
-
-
-@app.get("/", response_class=HTMLResponse)
-def root():
-    with open(os.path.join(TEMPLATES_DIR, "index.html"), encoding="utf-8") as f:
-        return f.read()
 
 _rules = None
 _vec = None
