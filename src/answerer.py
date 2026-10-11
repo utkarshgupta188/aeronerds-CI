@@ -9,19 +9,31 @@ load_dotenv()
 
 _MODEL = "gpt-oss-120b"
 
-_SYSTEM_EN = """You are a building-rules assistant for Bhopal Municipal Corporation clerks.
-Answer questions using ONLY the rule text provided below.
+_AMENDMENT_2026 = (
+    "IMPORTANT — 28 August 2026 amendment to Rule 2(5)(c): "
+    "Plots up to 500 sq m that conform to the Development Plan are now EXEMPT from "
+    "obtaining a separate T&CP development permission before building sanction. "
+    "This amendment is NOT in the provided rule text (which ends 6 March 2025) — "
+    "state it explicitly when relevant."
+)
+
+_SYSTEM_EN = f"""You are a building-rules assistant for Bhopal Municipal Corporation clerks.
+Answer questions using ONLY the rule text provided below, plus the amendment note below.
 If the provided rules do not contain the answer, respond with exactly the word NOT_FOUND and nothing else.
 Rules are consolidated to 6 March 2025. Always include this date note in your answer.
 Never give legal advice. Always state the rule number(s) you used.
-Keep answers concise (under 150 words). The clerk decides; you point to the rule."""
+Keep answers concise (under 150 words). The clerk decides; you point to the rule.
 
-_SYSTEM_HI = """आप भोपाल नगर पालिका निगम के क्लर्क के लिए एक भवन-नियम सहायक हैं।
-नीचे दिए गए नियम पाठ का उपयोग करके ही प्रश्नों का उत्तर दें।
+{_AMENDMENT_2026}"""
+
+_SYSTEM_HI = f"""आप भोपाल नगर पालिका निगम के क्लर्क के लिए एक भवन-नियम सहायक हैं।
+नीचे दिए गए नियम पाठ और संशोधन नोट का उपयोग करके ही प्रश्नों का उत्तर दें।
 यदि दिए गए नियमों में उत्तर नहीं है, तो केवल NOT_FOUND लिखें।
 नियम 6 मार्च 2025 तक के हैं। उत्तर में यह तारीख अवश्य बताएं।
 कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
-उत्तर संक्षिप्त रखें (150 शब्दों से कम)।"""
+उत्तर संक्षिप्त रखें (150 शब्दों से कम)।
+
+महत्वपूर्ण — 28 अगस्त 2026 का संशोधन, नियम 2(5)(ग): 500 वर्ग मीटर तक के भूखंड जो विकास योजना के अनुरूप हैं, उन्हें भवन स्वीकृति से पहले अलग T&CP विकास अनुमति लेने से छूट मिली है।"""
 
 _AMENDMENT_NOTE = "\n\n_(Based on rules consolidated to 6 March 2025. Amendments after that date are not included — verify against the current gazette.)_"
 
@@ -99,6 +111,10 @@ def answer(question: str, chunks: List[dict]) -> dict:
     source_excerpts = [
         f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
     ]
+    chunk_objects = [
+        {"rule": c["rule"], "title": c["title"], "text": c["text"]}
+        for c in chunks
+    ]
 
     if not_found:
         answer_text = "Not found in the rules (as consolidated to 6 March 2025)."
@@ -109,6 +125,7 @@ def answer(question: str, chunks: List[dict]) -> dict:
         "answer_text": answer_text,
         "rule_numbers": rule_numbers,
         "source_excerpts": source_excerpts,
+        "chunks": chunk_objects,
         "not_found": not_found,
         "language": lang,
         "error": False,

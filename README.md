@@ -2,20 +2,22 @@
 
 **Track 1 — Claude Impact Lab × Cerebras Café Compute, Bhopal · 11 October 2026**
 
-Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi, get the answer with the rule number and source text.
+Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with the rule number and the exact text it came from.
+
+**Team:** AeroNerds
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
-**User story:** A citizen asks "My plot is 200 sq m on a 9 m road. What is the front setback?" The clerk types the question, gets the answer (3.0 m, Rule 56), shows the citizen.
+**User story:** A citizen stands at the BMC counter and asks "My plot is 200 sq m on a 9 m road. What is the front setback, and what fee do I pay?" The clerk types the question, gets the answer (3.0 m — Rule 56(1)(a), ₹2,250 — Rule 21(3)(b)), shows the citizen the rule number, prints the guidance slip.
 
 ---
 
 ## How to run (5 steps)
 
-1. **Clone and enter the repo**
+1. **Clone the repo**
    ```bash
-   git clone <your-repo-url>
-   cd bhumi-vikas-sahayak
+   git clone https://github.com/utkarshgupta188/aeronerds-CI.git
+   cd aeronerds-CI
    ```
 
 2. **Install dependencies**
@@ -26,15 +28,41 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi, get the answer with
 3. **Set your Cerebras API key**
    ```bash
    cp .env.example .env
-   # Edit .env and paste your CEREBRAS_API_KEY
+   # Edit .env and set: CEREBRAS_API_KEY=your_key_here
    ```
 
-4. **Run the app**
+4. **Start the server**
    ```bash
-   streamlit run src/app.py
+   uvicorn backend.main:app --host 0.0.0.0 --port 8000
    ```
 
-5. **Open** `http://localhost:8501` in your browser and ask a question.
+5. **Open** `http://localhost:8000` in your browser.
+
+---
+
+## What it does
+
+### Rule Assistant (नियम सहायक)
+Type any question in English or Hindi. The tool retrieves the most relevant rules using TF-IDF search, sends them to Cerebras `gpt-oss-120b`, and returns the answer with:
+- The rule number(s) used
+- The exact rule text it drew from (expandable)
+- A clear "Not found in the rules" when the rules are silent — never invents a rule
+
+### Counter Calculator (काउंटर कैलकुलेटर)
+Enter plot area, road width, building height, and type. Get instantly:
+- **Front setback** — Rule 56(1)(a) table
+- **Rear setback** — Rule 56(2)(a) table
+- **Permission fee** — Rule 21(2)(ii) + Rule 21(3)(b) slabs (application fee ₹1/sqm + slab sanction fee)
+- **Lift requirement** — Rule 83 (mandatory above 12.5 m)
+- **T&CP exemption** — 28 August 2026 amendment (plots ≤ 500 sq m exempt)
+
+All arithmetic is in code, not in the language model.
+
+### Benchmark (सटीकता)
+Table of all 17 sample questions with pre-verified answers. "Run Live" button sends all 17 to the Cerebras API and shows live results.
+
+### Citizen Guidance Slip (नागरिक पर्ची)
+Print a slip for the citizen from either the calculator or the assistant result.
 
 ---
 
@@ -44,28 +72,30 @@ Evaluated on the 17 sample questions from the problem statement:
 
 | Category | Result |
 |---|---|
-| English questions (Q1–13) | **13/13 answered correctly** |
-| Hindi questions (Q14–15) | **2/2 answered correctly** |
-| Out-of-scope (Q16–17) | **2/2 correctly said "Not found"** |
+| English questions Q1–13 | **13/13 answered correctly** |
+| Hindi questions Q14–15 | **2/2 answered correctly** |
+| Out-of-scope Q16–17 | **2/2 correctly said "Not found"** |
 | **Total** | **17/17** |
 
-Each answer includes the rule number and is based solely on the MP Bhumi Vikas Rules 2012 (consolidated to 6 March 2025).
+Each answer cites the rule number and is grounded in the rule text provided to the model.
 
 ---
 
 ## What works
 
-- Plain English and Hindi questions answered with rule number and source text
-- Fee questions (Rule 21), setback/open-space questions (Rule 56), farm house rules (Rule 17), permission validity (Rule 23), lifts (Rule 83)
-- Correctly says "Not found" when the rules are silent — never invents a rule
-- Hindi queries retrieve the right rules via keyword expansion
-- Answers disclaim the 6 March 2025 consolidation date on every response
+- English and Hindi questions answered with rule number + source text shown
+- Fee questions (Rule 21), setback questions (Rule 56), farm house (Rule 17), permission validity (Rule 23), electric line clearances (Rule 52), lifts (Rule 83), Development Plan precedence (Rule 103)
+- Correctly says "Not found" for out-of-scope questions — never guesses
+- Calculator does all fee and setback arithmetic in Python — no LLM arithmetic
+- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator, in the ticker bar, and in the LLM system prompt
+- Bilingual UI — Hindi/English toggle, font resizer
+- Printable citizen guidance slip
 
-## What doesn't work
+## What doesn't work / known gaps
 
-- The 28 August 2026 amendment to Rule 2(5)(c) (plots up to 500 sq m) is not in the data and not answered
-- Highly specific table lookups (e.g. exact fee for 340 sq m plot) may need the user to check the PDF — the answer cites the rule and table, but arithmetic is left to the clerk
-- Hindi answers may be less precise than English for complex multi-part rules
+- The Hindi PDF uses an old font that copies as garbage — Hindi query support comes from keyword expansion into English, not from reading the Hindi PDF
+- Very long or compound questions sometimes get truncated; break them into one question at a time
+- Requires a Cerebras API key — the calculator works without one, the assistant does not
 
 ---
 
@@ -73,16 +103,33 @@ Each answer includes the rule number and is based solely on the MP Bhumi Vikas R
 
 | Source | Link |
 |---|---|
-| MP Bhumi Vikas Rules 2012 (English, to 6 March 2025) | https://mptownplan.gov.in/NewsPDF/bvn06032025E.pdf |
-| Problem statement and JSONL data | https://github.com/Vishal4742/bhopal-impact-lab-2026-problem-statements |
+| MP Bhumi Vikas Rules 2012, English, consolidated to 6 March 2025 | https://mptownplan.gov.in/NewsPDF/bvn06032025E.pdf |
+| MP Bhumi Vikas Rules 2012, Hindi, consolidated to 6 March 2025 | https://mptownplan.gov.in/NewsPDF/bvn06032025H.pdf |
+| Amendment of 28 August 2026 to Rule 2(5)(c) | https://teamleaseregtech.com/updates/article/59469/government-of-madhya-pradesh-amendment-to-land-development-rules |
+| Problem statement, JSONL data, and sample questions | https://github.com/Laaaaksh/bhopal-impact-lab-2026 |
 
 ---
 
 ## Tech stack
 
-- **Retrieval:** TF-IDF with query synonym expansion (scikit-learn) — no embedding API needed
-- **Generation:** Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk`
-- **UI:** Streamlit
+| Layer | Technology |
+|---|---|
+| Retrieval | TF-IDF + cosine similarity (scikit-learn) with synonym and Hindi keyword expansion |
+| Generation | Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk` |
+| Backend | FastAPI + uvicorn |
+| Frontend | Single-file HTML/CSS/JS — no build step, served directly by FastAPI |
+| Data | `data/bhumi_vikas_rules.jsonl` — 106 rules, one per line |
+
+---
+
+## API endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `GET /` | GET | Serves the UI |
+| `POST /api/ask` | POST | `{question, top_k}` → answer with rule numbers and source text |
+| `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
+| `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |
 
 ---
 
