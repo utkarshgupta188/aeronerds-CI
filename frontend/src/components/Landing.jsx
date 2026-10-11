@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import './Landing.css'
 
-const Emblem = ({ size = 40 }) => (
+const RULEBOOK_EN = 'https://mptownplan.gov.in/NewsPDF/bvn06032025E.pdf'
+const RULEBOOK_HI = 'https://mptownplan.gov.in/NewsPDF/bvn06032025H.pdf'
+const AMENDMENT_URL = 'https://teamleaseregtech.com/updates/article/59469/government-of-madhya-pradesh-amendment-to-land-development-rules'
+const REPO_URL = 'https://github.com/utkarshgupta188/aeronerds-CI'
+
+const Emblem = ({ size = 56 }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" aria-hidden="true">
     <circle cx="20" cy="20" r="20" fill="#1A3560"/>
     <circle cx="20" cy="20" r="16" fill="#E8620A"/>
@@ -15,35 +20,15 @@ const Emblem = ({ size = 40 }) => (
   </svg>
 )
 
-const Icon = ({ children }) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {children}
-  </svg>
-)
-
-function useReveal() {
-  const ref = useRef(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (!('IntersectionObserver' in window)) { el.classList.add('in'); return }
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } })
-    }, { threshold: 0.15 })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-  return ref
-}
-
-function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest }) {
-  const ref = useReveal()
-  return (
-    <Tag ref={ref} className={`lp-reveal ${className}`} style={{ transitionDelay: `${delay}ms` }} {...rest}>
-      {children}
-    </Tag>
-  )
-}
+const FAQ = [
+  { en: 'My house faces a 10 m wide street and will be 9 m tall. How much open space do I leave at the front?', hi: 'मेरा मकान 10 मीटर चौड़ी सड़क पर है और 9 मीटर ऊंचा होगा। आगे कितनी जगह खाली छोड़नी होगी?' },
+  { en: 'What is the minimum rear open space for a 150 sq m residential plot?', hi: '150 वर्ग मीटर के आवासीय प्लॉट में पीछे कम से कम कितनी जगह छोड़नी होगी?' },
+  { en: 'What is the fee for building permission for a residential house?', hi: 'बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?' },
+  { en: 'My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?', hi: 'मेरी विकास अनुमति 2023 में मिली थी। यह कितने समय तक वैध है और कितनी बार नवीनीकृत हो सकती है?' },
+  { en: 'Do I need separate development permission for a 300 sq m plot that matches the Development Plan?', hi: 'क्या विकास योजना के अनुरूप 300 वर्ग मीटर के प्लॉट के लिए अलग विकास अनुमति चाहिए?' },
+  { en: 'What are the rules for lifts in a building taller than 15 m?', hi: '15 मीटर से ऊंची इमारत में लिफ्ट के क्या नियम हैं?' },
+  { en: 'Who is allowed to sign and submit my building plans?', hi: 'मेरे भवन नक्शे पर हस्ताक्षर कर उसे जमा करने का अधिकार किसे है?' },
+]
 
 function scrollToId(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -51,272 +36,288 @@ function scrollToId(id) {
 
 export default function Landing({ lang, setLang, t, onOpen, onAsk }) {
   const [q, setQ] = useState('')
-  const [scrolled, setScrolled] = useState(false)
+  const [scale, setScale] = useState(1)
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  const chips = lang === 'hi'
-    ? ['बिल्डिंग परमिशन की फीस कितनी है?', '9 मीटर सड़क पर आगे कितनी जगह छोड़ें?', 'फार्म हाउस के लिए न्यूनतम प्लॉट?']
-    : ['Front setback for a 9 m road?', 'Fee for building permission?', 'Lift needed above what height?']
+  const resize = d => setScale(s => (d === 0 ? 1 : Math.min(1.3, Math.max(0.85, +(s + d).toFixed(2)))))
 
   function submit(e) {
     e.preventDefault()
-    onAsk(q.trim())
+    if (q.trim()) onAsk(q.trim())
   }
 
-  return (
-    <div className="lp">
-      <div className="lp-tricolor" />
+  const navItems = [
+    { label: t('Home', 'मुख्य पृष्ठ'), go: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    { label: t('Rules Assistant', 'नियम सहायक'), go: () => onOpen('assistant') },
+    { label: t('Counter Calculator', 'काउंटर कैलकुलेटर'), go: () => onOpen('calculator') },
+    { label: t('About the Service', 'सेवा के बारे में'), go: () => scrollToId('gov-about') },
+    { label: t('Services', 'सेवाएं'), go: () => scrollToId('gov-services') },
+    { label: t('Disclaimer', 'अस्वीकरण'), go: () => scrollToId('gov-disclaimer') },
+  ]
 
-      <header className={`lp-nav ${scrolled ? 'lp-nav-solid' : ''}`}>
-        <div className="lp-nav-inner">
-          <button className="lp-brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Bhumi Vikas Sahayak">
-            <Emblem size={38} />
-            <span className="lp-brand-text">
-              <span className="lp-brand-hi">भूमि विकास सहायक</span>
-              <span className="lp-brand-en">Bhumi Vikas Sahayak</span>
-            </span>
-          </button>
-          <nav className="lp-nav-links" aria-label="Sections">
-            <button onClick={() => scrollToId('how')}>{t('How it works', 'कैसे काम करता है')}</button>
-            <button onClick={() => scrollToId('features')}>{t('Features', 'सुविधाएं')}</button>
-            <button onClick={() => scrollToId('trust')}>{t('Trust', 'भरोसा')}</button>
-          </nav>
-          <div className="lp-nav-actions">
-            <button className="lp-lang" onClick={() => setLang(l => (l === 'en' ? 'hi' : 'en'))} aria-label="Toggle language">
-              {lang === 'en' ? 'हिन्दी' : 'English'}
-            </button>
-            <button className="lp-btn lp-btn-saffron lp-btn-sm" onClick={() => onOpen()}>
-              {t('Open the tool', 'टूल खोलें')}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
+  return (
+    <div className="gov" lang={lang === 'hi' ? 'hi' : 'en'} style={{ '--fs': `${15 * scale}px` }}>
+      <a className="gov-skip" href="#gov-main">{t('Skip to main content', 'मुख्य सामग्री पर जाएं')}</a>
+
+      <div className="gov-tricolor" aria-hidden="true" />
+
+      <div className="gov-topbar">
+        <div className="gov-container gov-topbar-inner">
+          <div className="gov-topbar-left">
+            <span>भोपाल नगर पालिका निगम</span>
+            <span className="gov-topbar-sep" aria-hidden="true">|</span>
+            <span>Bhopal Municipal Corporation</span>
+          </div>
+          <div className="gov-topbar-right">
+            <div className="gov-fontsize" role="group" aria-label={t('Text size', 'अक्षर आकार')}>
+              <button type="button" onClick={() => resize(-0.1)} aria-label={t('Decrease text size', 'अक्षर छोटे करें')}>A-</button>
+              <button type="button" onClick={() => resize(0)} aria-label={t('Default text size', 'सामान्य अक्षर')}>A</button>
+              <button type="button" onClick={() => resize(0.1)} aria-label={t('Increase text size', 'अक्षर बड़े करें')}>A+</button>
+            </div>
+            <div className="gov-langswitch" role="group" aria-label="Language">
+              <button type="button" className={lang === 'hi' ? 'on' : ''} onClick={() => setLang('hi')}>हिन्दी</button>
+              <button type="button" className={lang === 'en' ? 'on' : ''} onClick={() => setLang('en')}>English</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <header className="gov-header">
+        <div className="gov-container gov-header-inner">
+          <div className="gov-brand">
+            <Emblem />
+            <div className="gov-brand-text">
+              <div className="gov-brand-hi">भूमि विकास सहायक</div>
+              <div className="gov-brand-en">Bhumi Vikas Sahayak</div>
+              <div className="gov-brand-sub">{t('Building Permission Counter Assistant · Bhopal Municipal Corporation', 'भवन अनुमति काउंटर सहायक · भोपाल नगर पालिका निगम')}</div>
+            </div>
+          </div>
+          <div className="gov-header-box">
+            <div className="gov-header-box-title">{t('Rulebook in force', 'प्रभावी नियमावली')}</div>
+            <div>{t('M.P. Bhumi Vikas Rules, 2012', 'म.प्र. भूमि विकास नियम, 2012')}</div>
+            <div className="gov-muted">{t('Consolidated up to 06-03-2025', '06-03-2025 तक समेकित')}</div>
           </div>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="lp-hero">
-        <div className="lp-hero-bg" aria-hidden="true">
-          <span className="lp-orb lp-orb-a" />
-          <span className="lp-orb lp-orb-b" />
-          <span className="lp-grid" />
+      <nav className="gov-nav" aria-label={t('Main navigation', 'मुख्य नेविगेशन')}>
+        <div className="gov-container">
+          <ul>
+            {navItems.map((n, i) => (
+              <li key={i}><button type="button" onClick={n.go}>{n.label}</button></li>
+            ))}
+          </ul>
         </div>
-        <div className="lp-hero-inner">
-          <div className="lp-hero-copy">
-            <div className="lp-eyebrow">
-              <span className="lp-live" />
-              {t('Built for the BMC building-permission counter', 'भोपाल नगर निगम भवन अनुमति काउंटर के लिए')}
-            </div>
-            <h1 className="lp-h1">
-              {t('Ask the building rulebook.', 'भवन नियमावली से पूछिए।')}
-              <span className="lp-h1-accent">{t('Get the rule, not a guess.', 'अनुमान नहीं, नियम पाइए।')}</span>
-            </h1>
-            <p className="lp-lede">
+      </nav>
+
+      <div className="gov-ticker">
+        <div className="gov-container gov-ticker-inner">
+          <span className="gov-ticker-label">{t('NOTICE', 'सूचना')}</span>
+          <div className="gov-ticker-track">
+            <p className="gov-ticker-text">
               {t(
-                'A citizen at the counter asks about setbacks, fees or lifts. The clerk gets a short answer in English or Hindi, with the rule number and the exact rule text to show them.',
-                'काउंटर पर नागरिक सेटबैक, फीस या लिफ्ट के बारे में पूछता है। क्लर्क को हिन्दी या अंग्रेज़ी में छोटा उत्तर मिलता है, नियम संख्या और मूल नियम पाठ के साथ।'
+                'Amendment dated 28 August 2026 to Rule 2(5)(c): plots up to 500 sq m that conform to the Development Plan no longer need a separate development permission before building sanction. The consolidated rulebook (6 March 2025) does not yet include this amendment; this service applies it.',
+                '28 अगस्त 2026 का संशोधन, नियम 2(5)(ग): विकास योजना के अनुरूप 500 वर्ग मीटर तक के भूखंडों को भवन स्वीकृति से पहले अलग विकास अनुमति की आवश्यकता नहीं। समेकित नियमावली (6 मार्च 2025) में यह संशोधन अभी शामिल नहीं है; यह सेवा इसे लागू करती है।'
               )}
             </p>
-
-            <form className="lp-ask" onSubmit={submit}>
-              <svg className="lp-ask-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input
-                type="text"
-                value={q}
-                onChange={e => setQ(e.target.value)}
-                placeholder={t('e.g. My plot is 200 sq m on a 9 m road. Front setback?', 'जैसे: 200 वर्ग मीटर प्लॉट, 9 मीटर सड़क। आगे कितनी जगह छोड़ें?')}
-                aria-label={t('Your question', 'आपका प्रश्न')}
-                lang={lang === 'hi' ? 'hi' : 'en'}
-                autoComplete="off"
-              />
-              <button type="submit" className="lp-btn lp-btn-saffron">{t('Ask', 'पूछें')}</button>
-            </form>
-
-            <div className="lp-chips">
-              {chips.map(c => (
-                <button key={c} className="lp-chip" onClick={() => onAsk(c)}>{c}</button>
-              ))}
-            </div>
-
-            <div className="lp-hero-ctas">
-              <button className="lp-btn lp-btn-ghost" onClick={() => onOpen('calculator')}>
-                <Icon><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></Icon>
-                {t('Counter Calculator', 'काउंटर कैलकुलेटर')}
-              </button>
-              <span className="lp-note">{t('Free · open source · no personal data', 'निःशुल्क · ओपन सोर्स · कोई व्यक्तिगत डेटा नहीं')}</span>
-            </div>
           </div>
+        </div>
+      </div>
 
-          <div className="lp-hero-visual" aria-hidden="true">
-            <div className="lp-card lp-card-main">
-              <div className="lp-card-top">
-                <span className="lp-dot lp-dot-r" /><span className="lp-dot lp-dot-y" /><span className="lp-dot lp-dot-g" />
-                <span className="lp-card-tag">{t('Example answer', 'उदाहरण उत्तर')}</span>
-              </div>
-              <div className="lp-q">{t('My plot is 200 sq m on a 9 m road. How much gap do I leave at the front?', 'मेरा प्लॉट 200 वर्ग मीटर, सड़क 9 मीटर। आगे कितनी जगह छोड़नी होगी?')}</div>
-              <div className="lp-a">
-                <div className="lp-a-big">3.0 m</div>
-                <div className="lp-a-text">{t('Minimum front open space for a street up to 9 m wide.', '9 मीटर तक चौड़ी सड़क के लिए आगे न्यूनतम खुला स्थान।')}</div>
-              </div>
-              <div className="lp-rule-row">
-                <span className="lp-rule">Rule 56(1)(a)</span>
-                <span className="lp-rule lp-rule-soft">{t('Residential · up to 12.5 m', 'आवासीय · 12.5 मी. तक')}</span>
-              </div>
-              <div className="lp-src">
-                <div className="lp-src-label">{t('Source text', 'स्रोत पाठ')}</div>
-                <div className="lp-src-row"><span>Up to 9.0 meters</span><b>3.0 meters</b></div>
-                <div className="lp-src-row lp-dim"><span>More than 9.0 m and up to 12 m</span><b>3.6 meters</b></div>
+      <main id="gov-main" className="gov-container gov-main">
+        <div className="gov-col-main">
+          <section className="gov-panel">
+            <h2 className="gov-panel-h">{t('Ask the Building Rules', 'भवन नियमों से पूछें')}</h2>
+            <div className="gov-panel-b">
+              <p className="gov-lead">
+                {t(
+                  'Type the question as the citizen asks it, in English, Hindi or Hinglish. The answer states the rule number and shows the rule text it was taken from. If the rules do not cover the question, the service says so.',
+                  'प्रश्न वैसे ही लिखें जैसे नागरिक पूछता है, हिन्दी, अंग्रेज़ी या हिंग्लिश में। उत्तर में नियम संख्या और वह नियम पाठ दिखाया जाता है जिससे उत्तर लिया गया है। यदि नियमों में प्रश्न का उत्तर नहीं है, तो सेवा यह स्पष्ट बताती है।'
+                )}
+              </p>
+              <form className="gov-ask" onSubmit={submit}>
+                <label htmlFor="gov-q" className="gov-label">{t('Question', 'प्रश्न')}</label>
+                <div className="gov-ask-row">
+                  <input
+                    id="gov-q"
+                    type="text"
+                    value={q}
+                    onChange={e => setQ(e.target.value)}
+                    placeholder={t('e.g. My plot is 200 sq m on a 9 m road. What is the front setback?', 'जैसे: मेरा प्लॉट 200 वर्ग मीटर का है, 9 मीटर सड़क है। आगे कितनी जगह छोड़नी होगी?')}
+                    autoComplete="off"
+                  />
+                  <button type="submit" className="gov-btn gov-btn-saffron" disabled={!q.trim()}>{t('Ask', 'पूछें')}</button>
+                </div>
+              </form>
+              <div className="gov-ask-actions">
+                <button type="button" className="gov-btn" onClick={() => onOpen('assistant')}>{t('Open Rules Assistant', 'नियम सहायक खोलें')}</button>
+                <button type="button" className="gov-btn gov-btn-outline" onClick={() => onOpen('calculator')}>{t('Open Counter Calculator', 'काउंटर कैलकुलेटर खोलें')}</button>
               </div>
             </div>
+          </section>
 
-            <div className="lp-card lp-card-float lp-float-a">
-              <div className="lp-mini-label">{t('Rear open space', 'पीछे का खुला स्थान')}</div>
-              <div className="lp-mini-val">2.5 m</div>
-              <div className="lp-mini-rule">Rule 56(2)(a)</div>
+          <section className="gov-panel">
+            <h2 className="gov-panel-h">{t('Frequently asked at the counter', 'काउंटर पर अक्सर पूछे जाने वाले प्रश्न')}</h2>
+            <div className="gov-panel-b">
+              <ol className="gov-faq">
+                {FAQ.map((f, i) => (
+                  <li key={i}>
+                    <button type="button" className="gov-link" onClick={() => onAsk(lang === 'hi' ? f.hi : f.en)}>
+                      {lang === 'hi' ? f.hi : f.en}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+              <p className="gov-muted gov-small">{t('Select a question to send it to the Rules Assistant.', 'किसी प्रश्न को चुनने पर वह नियम सहायक को भेज दिया जाएगा।')}</p>
             </div>
-            <div className="lp-card lp-card-float lp-float-b">
-              <div className="lp-mini-label">{t('Permission fee (est.)', 'अनुमति शुल्क (अनुमानित)')}</div>
-              <div className="lp-mini-val">₹3,250</div>
-              <div className="lp-mini-rule">Rule 21</div>
+          </section>
+
+          <section className="gov-panel" id="gov-about">
+            <h2 className="gov-panel-h">{t('About this service', 'इस सेवा के बारे में')}</h2>
+            <div className="gov-panel-b">
+              <p>
+                {t(
+                  'Every house, shop or additional floor built in Bhopal must comply with the Madhya Pradesh Bhumi Vikas Rules, 2012. The rulebook runs to 108 pages and 105 numbered rules, and the figures asked about most often, such as fees, open spaces and floor area ratio, are set out in tables in different parts of it.',
+                  'भोपाल में बनने वाले हर मकान, दुकान या अतिरिक्त मंज़िल को मध्यप्रदेश भूमि विकास नियम, 2012 का पालन करना होता है। नियमावली 108 पृष्ठों और 105 क्रमांकित नियमों की है, और जिन आंकड़ों के बारे में सबसे अधिक पूछा जाता है, जैसे शुल्क, खुला स्थान और फ्लोर एरिया अनुपात, वे इसके अलग-अलग भागों की तालिकाओं में हैं।'
+                )}
+              </p>
+              <p>
+                {t(
+                  'This service is intended for the clerk at the building-permission counter. It locates the relevant rule, gives a short answer in the language of the question, and shows the rule number and the rule text so that the citizen can be shown the source. Fee and open-space figures are calculated from the rule tables by the Counter Calculator, not estimated.',
+                  'यह सेवा भवन अनुमति काउंटर पर बैठे क्लर्क के लिए है। यह संबंधित नियम खोजती है, प्रश्न की भाषा में संक्षिप्त उत्तर देती है, और नियम संख्या तथा नियम पाठ दिखाती है ताकि नागरिक को स्रोत दिखाया जा सके। शुल्क और खुले स्थान के आंकड़े काउंटर कैलकुलेटर द्वारा नियम तालिकाओं से गणना किए जाते हैं, अनुमानित नहीं।'
+                )}
+              </p>
+
+              <h3 className="gov-h3">{t('Illustration', 'उदाहरण')}</h3>
+              <p className="gov-small">{t('Residential plot of 200 sq m on a 9 m wide road, building height up to 12.5 m:', '9 मीटर चौड़ी सड़क पर 200 वर्ग मीटर का आवासीय भूखंड, भवन की ऊंचाई 12.5 मीटर तक:')}</p>
+              <table className="gov-table">
+                <thead>
+                  <tr>
+                    <th>{t('Item', 'मद')}</th>
+                    <th>{t('Result', 'परिणाम')}</th>
+                    <th>{t('Rule', 'नियम')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>{t('Front open space', 'आगे का खुला स्थान')}</td><td>3.0 m</td><td>56(1)(a)</td></tr>
+                  <tr><td>{t('Rear open space', 'पीछे का खुला स्थान')}</td><td>2.5 m</td><td>56(2)(a)</td></tr>
+                  <tr><td>{t('Permission fee (built-up area estimated at 250 sq m)', 'अनुमति शुल्क (निर्मित क्षेत्र अनुमानित 250 वर्ग मीटर)')}</td><td>₹3,250</td><td>21(2)(ii), 21(3)(b)</td></tr>
+                  <tr><td>{t('Separate development permission', 'अलग विकास अनुमति')}</td><td>{t('Not required (plot ≤ 500 sq m)', 'आवश्यक नहीं (भूखंड ≤ 500 वर्ग मीटर)')}</td><td>2(5)(c), {t('amended 28-08-2026', 'संशोधित 28-08-2026')}</td></tr>
+                </tbody>
+              </table>
             </div>
-            <div className="lp-card lp-card-float lp-float-c">
-              <span className="lp-check">✓</span>
-              {t('Not in the rules? It says so.', 'नियमों में नहीं? तो साफ़ बताता है।')}
+          </section>
+
+          <section className="gov-panel" id="gov-services">
+            <h2 className="gov-panel-h">{t('Services', 'सेवाएं')}</h2>
+            <div className="gov-panel-b gov-panel-b-flush">
+              <table className="gov-table gov-table-services">
+                <thead>
+                  <tr>
+                    <th>{t('Service', 'सेवा')}</th>
+                    <th>{t('Description', 'विवरण')}</th>
+                    <th>{t('Action', 'कार्रवाई')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{t('Rules Assistant', 'नियम सहायक')}</td>
+                    <td>{t('Question and answer over all 105 rules, with rule number and source text. Says "not found" when the rules are silent.', 'सभी 105 नियमों पर प्रश्नोत्तर, नियम संख्या और स्रोत पाठ सहित। नियम मौन हों तो "नहीं मिला" बताता है।')}</td>
+                    <td><button type="button" className="gov-link" onClick={() => onOpen('assistant')}>{t('Open', 'खोलें')}</button></td>
+                  </tr>
+                  <tr>
+                    <td>{t('Counter Calculator', 'काउंटर कैलकुलेटर')}</td>
+                    <td>{t('Front and rear open space, permission fee, floor area ratio and lift requirement from plot area, road width, height and building type.', 'भूखंड क्षेत्रफल, सड़क की चौड़ाई, ऊंचाई और भवन प्रकार से आगे-पीछे का खुला स्थान, अनुमति शुल्क, फ्लोर एरिया अनुपात और लिफ्ट की आवश्यकता।')}</td>
+                    <td><button type="button" className="gov-link" onClick={() => onOpen('calculator')}>{t('Open', 'खोलें')}</button></td>
+                  </tr>
+                  <tr>
+                    <td>{t('Citizen Guidance Slip', 'नागरिक मार्गदर्शन पर्ची')}</td>
+                    <td>{t('Print the answer with its rule reference for the citizen to take away. Available from the Rules Assistant.', 'उत्तर को नियम संदर्भ सहित पर्ची के रूप में प्रिंट करें। नियम सहायक में उपलब्ध।')}</td>
+                    <td><button type="button" className="gov-link" onClick={() => onOpen('assistant')}>{t('Open', 'खोलें')}</button></td>
+                  </tr>
+                  <tr>
+                    <td>{t('Amendments', 'संशोधन')}</td>
+                    <td>{t('Clerks who sign in may record new gazette amendments; recorded amendments are applied to every answer and listed under Latest Updates.', 'साइन-इन किए हुए क्लर्क नए राजपत्र संशोधन दर्ज कर सकते हैं; दर्ज संशोधन हर उत्तर में लागू होते हैं और नवीनतम अपडेट में दिखते हैं।')}</td>
+                    <td><button type="button" className="gov-link" onClick={() => onOpen('assistant')}>{t('Clerk login', 'क्लर्क लॉगिन')}</button></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
+          </section>
+
+          <section className="gov-panel">
+            <h2 className="gov-panel-h">{t('How an answer is produced', 'उत्तर कैसे तैयार होता है')}</h2>
+            <div className="gov-panel-b">
+              <ol className="gov-steps">
+                <li>{t('The question is matched against the text of all 105 rules and the most relevant rules are selected.', 'प्रश्न का मिलान सभी 105 नियमों के पाठ से किया जाता है और सबसे संबंधित नियम चुने जाते हैं।')}</li>
+                <li>{t('Only the selected rule text is used to write the answer. The answer must cite the rule number; if the text does not contain the answer, the service reports "not found".', 'उत्तर केवल चुने गए नियम पाठ से लिखा जाता है। उत्तर में नियम संख्या देना अनिवार्य है; यदि पाठ में उत्तर नहीं है, तो सेवा "नहीं मिला" बताती है।')}</li>
+                <li>{t('Figures from the fee and open-space tables are calculated in code by the Counter Calculator.', 'शुल्क और खुले स्थान की तालिकाओं के आंकड़े काउंटर कैलकुलेटर द्वारा कोड में गणना किए जाते हैं।')}</li>
+                <li>{t('Every answer states the consolidation date of the rulebook (6 March 2025) and applies the amendment of 28 August 2026.', 'हर उत्तर में नियमावली की समेकन तिथि (6 मार्च 2025) बताई जाती है और 28 अगस्त 2026 का संशोधन लागू किया जाता है।')}</li>
+              </ol>
+            </div>
+          </section>
         </div>
-      </section>
 
-      {/* STATS */}
-      <section className="lp-stats">
-        <Reveal className="lp-stats-inner">
-          <div className="lp-stat"><b>105</b><span>{t('numbered rules indexed', 'क्रमांकित नियम सूचीबद्ध')}</span></div>
-          <div className="lp-stat"><b>108</b><span>{t('pages of the official rulebook', 'आधिकारिक नियमावली के पृष्ठ')}</span></div>
-          <div className="lp-stat"><b>EN · हिं</b><span>{t('questions in either language', 'किसी भी भाषा में प्रश्न')}</span></div>
-          <div className="lp-stat"><b>28 Aug 2026</b><span>{t('amendment built in', 'संशोधन शामिल')}</span></div>
-        </Reveal>
-      </section>
+        <aside className="gov-col-side">
+          <section className="gov-panel">
+            <h2 className="gov-panel-h">{t('Important information', 'महत्वपूर्ण जानकारी')}</h2>
+            <div className="gov-panel-b">
+              <dl className="gov-dl">
+                <dt>{t('Rulebook', 'नियमावली')}</dt>
+                <dd>{t('Madhya Pradesh Bhumi Vikas Rules, 2012', 'मध्यप्रदेश भूमि विकास नियम, 2012')}</dd>
+                <dt>{t('Consolidated up to', 'समेकित तिथि')}</dt>
+                <dd>6 {t('March', 'मार्च')} 2025</dd>
+                <dt>{t('Latest amendment applied', 'लागू नवीनतम संशोधन')}</dt>
+                <dd>28 {t('August', 'अगस्त')} 2026 — {t('Rule', 'नियम')} 2(5)(c)</dd>
+                <dt>{t('Rules indexed', 'सूचीबद्ध नियम')}</dt>
+                <dd>105 {t('numbered rules and Rule 26-B', 'क्रमांकित नियम तथा नियम 26-ख')}</dd>
+                <dt>{t('Languages', 'भाषाएं')}</dt>
+                <dd>{t('English, Hindi, Hinglish', 'हिन्दी, अंग्रेज़ी, हिंग्लिश')}</dd>
+              </dl>
+            </div>
+          </section>
 
-      {/* PROBLEM */}
-      <section className="lp-section lp-problem">
-        <div className="lp-wrap lp-two">
-          <Reveal>
-            <div className="lp-kicker">{t('The problem', 'समस्या')}</div>
-            <h2 className="lp-h2">{t('108 pages of rules. A queue at the counter.', '108 पृष्ठों के नियम। काउंटर पर कतार।')}</h2>
-            <p className="lp-p">
-              {t(
-                'Fees, setbacks and floor-area limits sit in tables spread across the MP Bhumi Vikas Rules, 2012, and the rules keep being amended. Clerks answer the same questions all day, and a citizen who gets a wrong number pays fees before discovering the plan breaks a rule.',
-                'फीस, सेटबैक और फ्लोर एरिया की सीमाएं एमपी भूमि विकास नियम, 2012 की अलग-अलग तालिकाओं में हैं, और नियम बार-बार संशोधित होते हैं। क्लर्क दिनभर वही प्रश्न सुनते हैं, और गलत संख्या मिलने पर नागरिक फीस भरने के बाद जान पाता है कि नक्शा नियम तोड़ रहा है।'
-              )}
-            </p>
-          </Reveal>
-          <Reveal delay={120} className="lp-quote">
-            <div className="lp-quote-mark">“</div>
-            <p>{t('My plot is 200 sq m on a 9 m road. How much gap do I leave at the front, how many floors can I build, and what fee do I pay?', 'मेरा प्लॉट 200 वर्ग मीटर का है और सड़क 9 मीटर चौड़ी है। आगे कितनी जगह छोड़ूं, कितनी मंज़िलें बना सकता हूं, और फीस कितनी लगेगी?')}</p>
-            <span>{t('A typical question at the counter', 'काउंटर पर आम प्रश्न')}</span>
-          </Reveal>
-        </div>
-      </section>
+          <section className="gov-panel">
+            <h2 className="gov-panel-h">{t('Quick links', 'त्वरित लिंक')}</h2>
+            <div className="gov-panel-b">
+              <ul className="gov-links">
+                <li><button type="button" className="gov-link" onClick={() => onOpen('assistant')}>{t('Rules Assistant', 'नियम सहायक')}</button></li>
+                <li><button type="button" className="gov-link" onClick={() => onOpen('calculator')}>{t('Counter Calculator', 'काउंटर कैलकुलेटर')}</button></li>
+                <li><a href={RULEBOOK_EN} target="_blank" rel="noopener noreferrer">{t('Rulebook, English (PDF, T&CP Department)', 'नियमावली, अंग्रेज़ी (PDF, नगर तथा ग्राम निवेश विभाग)')}</a></li>
+                <li><a href={RULEBOOK_HI} target="_blank" rel="noopener noreferrer">{t('Rulebook, Hindi (PDF, T&CP Department)', 'नियमावली, हिन्दी (PDF, नगर तथा ग्राम निवेश विभाग)')}</a></li>
+                <li><a href={AMENDMENT_URL} target="_blank" rel="noopener noreferrer">{t('Amendment of 28 August 2026 (notice)', '28 अगस्त 2026 का संशोधन (सूचना)')}</a></li>
+                <li><a href={REPO_URL} target="_blank" rel="noopener noreferrer">{t('Source code (GitHub)', 'स्रोत कोड (GitHub)')}</a></li>
+              </ul>
+            </div>
+          </section>
 
-      {/* HOW */}
-      <section className="lp-section" id="how">
-        <div className="lp-wrap">
-          <Reveal className="lp-center">
-            <div className="lp-kicker">{t('How it works', 'कैसे काम करता है')}</div>
-            <h2 className="lp-h2">{t('From question to rule in three steps', 'प्रश्न से नियम तक, तीन कदम')}</h2>
-          </Reveal>
-          <div className="lp-steps">
-            {[
-              { n: '1', icon: <Icon><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></Icon>, ti: t('Ask in plain words', 'सरल भाषा में पूछें'), d: t('Type the citizen’s question in English, Hindi or Hinglish. No forms, no rule numbers needed.', 'नागरिक का प्रश्न हिन्दी, अंग्रेज़ी या हिंग्लिश में लिखें। किसी फॉर्म या नियम संख्या की ज़रूरत नहीं।') },
-              { n: '2', icon: <Icon><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></Icon>, ti: t('It finds the right rules', 'सही नियम खोजता है'), d: t('The rulebook is searched and only the matching rules are read. Fee and setback maths is done in code, not guessed.', 'नियमावली में खोज कर केवल संबंधित नियम पढ़े जाते हैं। फीस और सेटबैक की गणना कोड से होती है, अनुमान से नहीं।') },
-              { n: '3', icon: <Icon><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></Icon>, ti: t('Answer with proof', 'प्रमाण सहित उत्तर'), d: t('A short answer in the same language, the rule number, and the exact text it came from, ready to show the citizen or print as a slip.', 'उसी भाषा में छोटा उत्तर, नियम संख्या और मूल पाठ। नागरिक को दिखाएं या पर्ची प्रिंट करें।') },
-            ].map((s, i) => (
-              <Reveal key={s.n} delay={i * 110} className="lp-step">
-                <div className="lp-step-top"><span className="lp-step-n">{s.n}</span><span className="lp-step-icon">{s.icon}</span></div>
-                <h3>{s.ti}</h3>
-                <p>{s.d}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+          <section className="gov-panel gov-panel-notice" id="gov-disclaimer">
+            <h2 className="gov-panel-h">{t('Disclaimer', 'अस्वीकरण')}</h2>
+            <div className="gov-panel-b">
+              <ul className="gov-bullets">
+                <li>{t('The service points to the rule; the decision rests with the clerk and the competent authority.', 'सेवा नियम की ओर संकेत करती है; निर्णय क्लर्क और सक्षम प्राधिकारी का होता है।')}</li>
+                <li>{t('Answers are not legal advice. Verify figures against the official PDF before acting on them.', 'उत्तर कानूनी सलाह नहीं हैं। कार्रवाई से पहले आंकड़ों का आधिकारिक PDF से मिलान करें।')}</li>
+                <li>{t('The service uses public data only, is not connected to any government system and stores no personal data.', 'सेवा केवल सार्वजनिक डेटा का उपयोग करती है, किसी सरकारी प्रणाली से जुड़ी नहीं है और कोई व्यक्तिगत डेटा संग्रहीत नहीं करती।')}</li>
+              </ul>
+            </div>
+          </section>
+        </aside>
+      </main>
 
-      {/* FEATURES */}
-      <section className="lp-section lp-features" id="features">
-        <div className="lp-wrap">
-          <Reveal className="lp-center">
-            <div className="lp-kicker">{t('Features', 'सुविधाएं')}</div>
-            <h2 className="lp-h2">{t('Everything the counter needs. Nothing it doesn’t.', 'काउंटर को जो चाहिए, बस वही।')}</h2>
-          </Reveal>
-          <div className="lp-feat-grid">
-            {[
-              { icon: <Icon><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></Icon>, ti: t('Rules Assistant', 'नियम सहायक'), d: t('Plain-language Q&A over all 105 rules, each answer citing its rule and showing the source text.', 'सभी 105 नियमों पर सरल भाषा में प्रश्नोत्तर, हर उत्तर में नियम संख्या और स्रोत पाठ।') },
-              { icon: <Icon><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/></Icon>, ti: t('Counter Calculator', 'काउंटर कैलकुलेटर'), d: t('Front and rear setbacks, permission fee, FAR and lift requirement from plot size, road width and height.', 'प्लॉट, सड़क की चौड़ाई और ऊंचाई से आगे-पीछे का खुला स्थान, अनुमति शुल्क, FAR और लिफ्ट।') },
-              { icon: <Icon><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></Icon>, ti: t('Honest “not found”', 'ईमानदार “नहीं मिला”'), d: t('When the rules are silent, it says so clearly instead of inventing a rule. The tool points; the clerk decides.', 'नियम मौन हों तो साफ़ बताता है, नियम गढ़ता नहीं। टूल संकेत देता है, निर्णय क्लर्क का।') },
-              { icon: <Icon><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></Icon>, ti: t('Version-aware', 'संस्करण की जानकारी'), d: t('Every answer names the 6 March 2025 consolidation. The 28 Aug 2026 amendment for plots up to 500 sq m is built in, and clerks can record new gazette amendments.', 'हर उत्तर 6 मार्च 2025 के संकलन का उल्लेख करता है। 500 वर्ग मीटर तक के भूखंडों का 28 अगस्त 2026 संशोधन शामिल है, और क्लर्क नए संशोधन दर्ज कर सकते हैं।') },
-              { icon: <Icon><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 0 1 6.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></Icon>, ti: t('Hindi, English, Hinglish', 'हिन्दी, अंग्रेज़ी, हिंग्लिश'), d: t('Ask the way you speak. The answer comes back in the same language.', 'जैसे बोलते हैं वैसे पूछिए। उत्तर उसी भाषा में मिलता है।') },
-              { icon: <Icon><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></Icon>, ti: t('Citizen guidance slip', 'नागरिक मार्गदर्शन पर्ची'), d: t('Print the answer with its rule reference as a slip the citizen takes home.', 'उत्तर को नियम संदर्भ सहित पर्ची के रूप में प्रिंट करें, नागरिक साथ ले जाए।') },
-            ].map((f, i) => (
-              <Reveal key={i} delay={(i % 3) * 90} className="lp-feat">
-                <span className="lp-feat-icon">{f.icon}</span>
-                <h3>{f.ti}</h3>
-                <p>{f.d}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST */}
-      <section className="lp-section lp-trust" id="trust">
-        <div className="lp-wrap lp-two">
-          <Reveal>
-            <div className="lp-kicker lp-kicker-light">{t('Trust', 'भरोसा')}</div>
-            <h2 className="lp-h2 lp-h2-light">{t('It points to the rule. The clerk decides.', 'यह नियम बताता है। निर्णय क्लर्क का।')}</h2>
-            <p className="lp-p lp-p-light">
-              {t(
-                'Built on public data only, with no connection to any government system and no personal data. Not legal advice: every answer carries the rule so it can be checked against the official PDF.',
-                'केवल सार्वजनिक डेटा पर आधारित, किसी सरकारी प्रणाली से कोई संपर्क नहीं और कोई व्यक्तिगत डेटा नहीं। यह कानूनी सलाह नहीं है: हर उत्तर में नियम दिया है ताकि आधिकारिक PDF से मिलान हो सके।'
-              )}
-            </p>
-          </Reveal>
-          <Reveal delay={120} className="lp-trust-list">
-            {[
-              t('Source: MP Bhumi Vikas Rules 2012, consolidated to 6 March 2025', 'स्रोत: एमपी भूमि विकास नियम 2012, 6 मार्च 2025 तक संकलित'),
-              t('Amendment of 28 August 2026 to Rule 2(5)(c) included', 'नियम 2(5)(ग) का 28 अगस्त 2026 संशोधन शामिल'),
-              t('Table numbers computed in code, not by the language model', 'तालिका की संख्याएं कोड से, भाषा मॉडल से नहीं'),
-              t('Open source (MIT) and offered to the Government of Madhya Pradesh through MPSeDC', 'ओपन सोर्स (MIT), मध्यप्रदेश शासन को MPSeDC के माध्यम से प्रस्तावित'),
-            ].map((x, i) => (
-              <div key={i} className="lp-trust-item"><span className="lp-tick">✓</span>{x}</div>
-            ))}
-          </Reveal>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="lp-cta">
-        <Reveal className="lp-cta-inner">
-          <h2>{t('Try it on your next citizen at the counter.', 'अगले नागरिक पर आज़माइए।')}</h2>
-          <p>{t('No sign-up. Just ask.', 'साइन-अप नहीं। बस पूछिए।')}</p>
-          <div className="lp-cta-btns">
-            <button className="lp-btn lp-btn-saffron lp-btn-lg" onClick={() => onOpen()}>{t('Open the Rules Assistant', 'नियम सहायक खोलें')}</button>
-            <button className="lp-btn lp-btn-outline lp-btn-lg" onClick={() => onOpen('calculator')}>{t('Counter Calculator', 'काउंटर कैलकुलेटर')}</button>
-          </div>
-        </Reveal>
-      </section>
-
-      <footer className="lp-footer">
-        <div className="lp-footer-inner">
-          <div className="lp-footer-brand"><Emblem size={28} /><span>भूमि विकास सहायक · Bhumi Vikas Sahayak</span></div>
-          <div className="lp-footer-note">
-            {t('Claude Impact Lab × Cerebras Café Compute, Bhopal · Track 1 · Team AeroNerds', 'क्लॉड इम्पैक्ट लैब × सेरेब्रास कैफ़े कंप्यूट, भोपाल · ट्रैक 1 · टीम AeroNerds')}
-          </div>
-          <div className="lp-footer-note">{t('Not legal advice. The clerk decides.', 'यह कानूनी सलाह नहीं है। अंतिम निर्णय क्लर्क का है।')}</div>
+      <footer className="gov-footer">
+        <div className="gov-container">
+          <ul className="gov-footer-links">
+            <li><button type="button" onClick={() => scrollToId('gov-about')}>{t('About', 'परिचय')}</button></li>
+            <li><button type="button" onClick={() => scrollToId('gov-disclaimer')}>{t('Disclaimer', 'अस्वीकरण')}</button></li>
+            <li><a href={RULEBOOK_EN} target="_blank" rel="noopener noreferrer">{t('Official rulebook', 'आधिकारिक नियमावली')}</a></li>
+            <li><a href={REPO_URL} target="_blank" rel="noopener noreferrer">{t('Source code', 'स्रोत कोड')}</a></li>
+            <li><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{t('Back to top', 'ऊपर जाएं')}</button></li>
+          </ul>
+          <p className="gov-footer-text">
+            {t(
+              'Content based on the Madhya Pradesh Bhumi Vikas Rules, 2012, consolidated up to 6 March 2025, with the amendment of 28 August 2026. Developed by Team AeroNerds at Claude Impact Lab × Cerebras Café Compute, Bhopal, 11 October 2026. Released under the MIT licence and offered to the Government of Madhya Pradesh through MPSeDC.',
+              'सामग्री मध्यप्रदेश भूमि विकास नियम, 2012 (6 मार्च 2025 तक समेकित) तथा 28 अगस्त 2026 के संशोधन पर आधारित। टीम AeroNerds द्वारा क्लॉड इम्पैक्ट लैब × सेरेब्रास कैफ़े कंप्यूट, भोपाल, 11 अक्टूबर 2026 में विकसित। MIT लाइसेंस के अंतर्गत जारी तथा MPSeDC के माध्यम से मध्यप्रदेश शासन को प्रस्तावित।'
+            )}
+          </p>
         </div>
       </footer>
     </div>
