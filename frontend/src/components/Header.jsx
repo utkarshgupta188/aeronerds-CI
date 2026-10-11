@@ -14,12 +14,20 @@ const BMCEmblem = () => (
   </svg>
 )
 
-export default function Header({ lang, setLang, t, user, onLoginClick }) {
+export default function Header({ lang, setLang, t, user, onLoginClick, onHome }) {
   return (
     <header className="header">
       <div className="header-stripe" />
       <div className="header-inner">
-        <div className="header-brand">
+        <div
+          className="header-brand"
+          onClick={onHome}
+          onKeyDown={e => { if (onHome && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onHome() } }}
+          role={onHome ? 'link' : undefined}
+          tabIndex={onHome ? 0 : undefined}
+          style={onHome ? { cursor: 'pointer' } : undefined}
+          title={onHome ? t('Back to home', 'होम पर वापस') : undefined}
+        >
           <BMCEmblem />
           <div className="header-titles">
             <div className="header-title-hi">भूमि विकास सहायक</div>

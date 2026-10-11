@@ -9,9 +9,13 @@ import Calculator from './components/Calculator.jsx'
 import Assistant from './components/Assistant.jsx'
 import AmendmentManager from './components/AmendmentManager.jsx'
 import LoginModal from './components/LoginModal.jsx'
+import Landing from './components/Landing.jsx'
 import './App.css'
 
+const inTool = () => window.location.hash === '#app'
+
 export default function App() {
+  const [view, setView] = useState(() => (inTool() ? 'tool' : 'landing'))
   const [tab, setTab] = useState('assistant')
   const [lang, setLang] = useState('en')
   const [user, setUser] = useState(null)
@@ -19,6 +23,18 @@ export default function App() {
 
   const [updates, setUpdates] = useState([])
   const [prefill, setPrefill] = useState('')
+
+  useEffect(() => {
+    const sync = () => setView(inTool() ? 'tool' : 'landing')
+    window.addEventListener('hashchange', sync)
+    window.addEventListener('popstate', sync)
+    return () => {
+      window.removeEventListener('hashchange', sync)
+      window.removeEventListener('popstate', sync)
+    }
+  }, [])
+
+  useEffect(() => { window.scrollTo(0, 0) }, [view])
 
   useEffect(() => {
     return onAuthStateChanged(auth, u => setUser(u))
@@ -36,11 +52,35 @@ export default function App() {
 
   function askAbout(q) { setPrefill(q); setTab('assistant') }
 
+  function openTool(nextTab = 'assistant', question = '') {
+    setPrefill(question)
+    setTab(nextTab)
+    window.location.hash = '#app'
+    setView('tool')
+  }
+
+  function goHome() {
+    window.history.pushState(null, '', window.location.pathname + window.location.search)
+    setView('landing')
+  }
+
   const t = (en, hi) => lang === 'hi' ? hi : en
+
+  if (view === 'landing') {
+    return (
+      <Landing
+        lang={lang}
+        setLang={setLang}
+        t={t}
+        onOpen={(nextTab = 'assistant') => openTool(nextTab)}
+        onAsk={q => openTool('assistant', q)}
+      />
+    )
+  }
 
   return (
     <div className="app">
-      <Header lang={lang} setLang={setLang} t={t} user={user} onLoginClick={() => setShowLogin(true)} />
+      <Header lang={lang} setLang={setLang} t={t} user={user} onLoginClick={() => setShowLogin(true)} onHome={goHome} />
       <TabBar tab={current} setTab={setTab} t={t} user={user} updatesCount={updates.length} />
       <main className="main-content">
         {current === 'assistant' && <Assistant lang={lang} t={t} initialQuestion={prefill} />}
