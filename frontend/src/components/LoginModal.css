@@ -50,21 +50,51 @@
 .modal-body .field { margin-bottom: 16px; }
 .modal-wide { width: 100%; justify-content: center; padding: 12px 20px; }
 
-.input-icon-wrap { position: relative; }
+.modal-body label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+  color: var(--navy); margin-bottom: 7px;
+}
+
+.input-icon-wrap { position: relative; display: flex; align-items: center; }
 .input-icon {
-  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
   color: var(--text-muted); pointer-events: none;
 }
-.input-icon-wrap input { padding-left: 38px; }
-.input-icon-wrap input[type="password"],
-.input-icon-wrap input[type="text"] { padding-right: 64px; }
-.input-icon-wrap input#clerk-email { padding-right: 14px; }
+
+.modal-body .login-input {
+  display: block;
+  width: 100%;
+  height: 46px;
+  padding: 0 14px 0 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.modal-body .login-input::placeholder { color: var(--text-muted); }
+.modal-body .login-input:hover { border-color: #C5CEE0; }
+.modal-body .login-input:focus {
+  outline: none;
+  background: var(--card);
+  border-color: var(--saffron);
+  box-shadow: 0 0 0 3px rgba(232, 98, 10, 0.14);
+}
+.modal-body .login-input.has-toggle { padding-right: 70px; }
+.modal-body .login-input::-ms-reveal,
+.modal-body .login-input::-ms-clear { display: none; }
 
 .show-pass {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  height: 34px; padding: 0 10px;
   background: none; border: none; cursor: pointer;
-  font-family: inherit; font-size: 12px; font-weight: 700;
-  color: var(--navy-mid); padding: 6px 8px; border-radius: 4px;
+  font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--navy-mid); border-radius: 6px;
 }
 .show-pass:hover { background: var(--navy-light); }
 
