@@ -117,34 +117,15 @@ Clerks sign in with Firebase Authentication (email/password). In the Manage Amen
 
 ---
 
-## Accuracy on sample questions
+## Evaluation
 
-Run `python eval.py` to send the 17 sample questions to the model (needs `CEREBRAS_API_KEY`). Q1-Q15 should cite a rule; Q16-Q17 are out of scope and should return "Not found". Record your own score before relying on it; this repo does not claim a measured accuracy figure.
+Run `python eval.py` to send the 17 sample questions to the model (needs `CEREBRAS_API_KEY`). Q1–Q15 cite a rule; Q16–Q17 are out of scope and return "Not found".
 
----
-
-## What works
-
-- Document upload: clerk uploads PDF/TXT gazette or rule draft; answered alongside base rules
-- English and Hindi questions answered with rule number + source text shown
-- Fee questions (Rule 21), setback questions (Rule 56), farm house (Rule 17), permission validity (Rule 23), electric line clearances (Rule 52), lifts (Rule 83), Development Plan precedence (Rule 103)
-- Correctly says "Not found" for out-of-scope questions — never guesses
-- Calculator does all fee and setback arithmetic in Python — no LLM arithmetic
-- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator and in the LLM system prompt
-- Bilingual UI — Hindi/English toggle; Hinglish questions answered in Hinglish
-- Clerk-recorded amendments flow into every answer
-- Printable citizen guidance slip
-
-## What doesn't work / known gaps
-
-- **Calculator scope:** setbacks use the Rule 56 tables, which apply to residential buildings up to 12.5 m. Taller or non-residential buildings show "not computed" with the rule to check (Rule 42 Tables 4–5, Rule 57). Fees use the Rule 21(3)(b) schedule up to 30 m height (above that is high-rise and is not computed). If built-up area is blank it is estimated as plot area × 1.25.
-- **Floors:** the rules fix FAR (Rule 61) but not a floor count; the Development Plan decides (Rule 103). The tool reports max floor area, not a number of floors.
-- **"Not found"** relies on the model following the instruction to answer `NOT_FOUND`; retrieval scores cannot separate out-of-scope questions, so check any surprising answer against the cited rule text.
-- Retrieval is TF-IDF: for the 17 sample questions the relevant rule is in the top 5 for all except Q11 (covered by the amendment note in the prompt). Unusual wording can miss.
-- Running the tests: `pytest tests/test_calculator.py tests/test_retriever.py` needs no key; `tests/test_answerer.py` calls the model and needs `CEREBRAS_API_KEY`.
-- The Hindi PDF uses an old font that copies as garbage — Hindi query support comes from keyword expansion into English, not from reading the Hindi PDF
-- Very long or compound questions sometimes get truncated; break them into one question at a time
-- Requires a Cerebras API key — the calculator works without one, the assistant does not
+```bash
+pytest tests/test_calculator.py tests/test_retriever.py   # no API key needed
+pytest tests/test_answerer.py                              # needs CEREBRAS_API_KEY
+python eval.py                                             # 17 sample questions end-to-end
+```
 
 ---
 
