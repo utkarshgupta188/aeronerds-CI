@@ -8,7 +8,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Members:** _add the 4–5 team member names here before submitting_
 
-**UI:** the React app in `frontend/` (assistant, calculator, benchmark, clerk login, amendments). The FastAPI backend serves only `/api/*`.
+**UI:** the React app in `frontend/` (assistant, calculator, latest updates, clerk login, amendment manager). The FastAPI backend serves only `/api/*`.
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
@@ -50,11 +50,11 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 ## Repository structure
 
 ```
-backend/main.py          FastAPI app: /api/ask, /api/calculate, /api/benchmark
+backend/main.py          FastAPI app: /api/ask, /api/calculate, /api/rules
 src/embedder.py          TF-IDF retrieval + synonym and Hindi keyword expansion
 src/answerer.py          Cerebras gpt-oss-120b answerer (EN / HI / Hinglish, NOT_FOUND detection)
 data/                    106 rules as JSONL + full text by page
-frontend/                React + Vite UI (assistant, calculator, benchmark, amendments)
+frontend/                React + Vite UI (assistant, calculator, latest updates, amendment manager)
 tests/                   pytest: retrieval + answerer
 eval.py                  Runs the 17 sample questions from the command line
 deploy/                  EC2 setup + redeploy scripts, systemd unit
@@ -101,22 +101,17 @@ Enter plot area, road width, building height, and type. Get instantly:
 
 All arithmetic is in code, not in the language model.
 
-### Benchmark (सटीकता)
-Table of all 17 sample questions with pre-verified answers. "Run Live" button sends all 17 to the Cerebras API and shows live results.
-
 ### Citizen Guidance Slip (नागरिक पर्ची)
 Print a slip for the citizen from either the calculator or the assistant result.
 
 ### Clerk login and Amendments (संशोधन)
-Clerks sign in with Firebase Authentication (email/password) and record new gazette amendments: rule number, effective date, title, text. Amendments are stored in Firestore and sync live to every open screen. Each question sent to the assistant carries the recorded amendments, and the model is told they take precedence over the base rules. Anyone can read amendments; only signed-in clerks can add or delete them (Firestore security rules).
+Clerks sign in with Firebase Authentication (email/password). In the Manage Amendments tab, which exists only after sign-in, they pick a rule from the list, then record the effective date, title and text. Each amendment has an on/off switch. Amendments are stored in Firestore and sync live. Active amendments are sent with every question and the model is told they take precedence over the base rules. Citizens see them read-only in a Latest Updates tab that appears only when at least one amendment is active. Only signed-in clerks can write (Firestore security rules).
 
 ---
 
 ## Accuracy on sample questions
 
-The 17 sample questions are built into the Benchmark tab with reference answers checked against the rule text (Q1-Q15 point to a rule; Q16-Q17 are expected to return "Not found").
-
-The **Run Live** button sends all 17 to the model and marks each result as matching or not matching the expected found / not-found outcome. It needs `CEREBRAS_API_KEY`. Run it and record your own score here before relying on it; this repo does not claim a measured accuracy figure.
+Run `python eval.py` to send the 17 sample questions to the model (needs `CEREBRAS_API_KEY`). Q1-Q15 should cite a rule; Q16-Q17 are out of scope and should return "Not found". Record your own score before relying on it; this repo does not claim a measured accuracy figure.
 
 ---
 
@@ -175,7 +170,7 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 |---|---|---|
 | `POST /api/ask` | POST | `{question, top_k, amendments?}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
-| `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |
+| `GET /api/rules` | GET | Lists all rule numbers and titles |
 
 ---
 

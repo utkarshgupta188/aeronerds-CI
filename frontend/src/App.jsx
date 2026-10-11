@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from './firebase.js'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { auth, db } from './firebase.js'
+import LatestUpdates from './components/LatestUpdates.jsx'
 import Header from './components/Header.jsx'
 import TabBar from './components/TabBar.jsx'
 import Calculator from './components/Calculator.jsx'
 import Assistant from './components/Assistant.jsx'
-import Benchmark from './components/Benchmark.jsx'
 import AmendmentManager from './components/AmendmentManager.jsx'
 import LoginModal from './components/LoginModal.jsx'
 import './App.css'
@@ -16,21 +17,36 @@ export default function App() {
   const [user, setUser] = useState(null)
   const [showLogin, setShowLogin] = useState(false)
 
+  const [updates, setUpdates] = useState([])
+  const [prefill, setPrefill] = useState('')
+
   useEffect(() => {
     return onAuthStateChanged(auth, u => setUser(u))
   }, [])
+
+  useEffect(() => {
+    const q = query(collection(db, 'amendments'), orderBy('added_at', 'desc'))
+    return onSnapshot(q, snap =>
+      setUpdates(snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(a => a.active !== false))
+    )
+  }, [])
+
+  const current =
+    (tab === 'amendments' && !user) || (tab === 'updates' && updates.length === 0) ? 'assistant' : tab
+
+  function askAbout(q) { setPrefill(q); setTab('assistant') }
 
   const t = (en, hi) => lang === 'hi' ? hi : en
 
   return (
     <div className="app">
       <Header lang={lang} setLang={setLang} t={t} user={user} onLoginClick={() => setShowLogin(true)} />
-      <TabBar tab={tab} setTab={setTab} t={t} user={user} />
+      <TabBar tab={current} setTab={setTab} t={t} user={user} updatesCount={updates.length} />
       <main className="main-content">
-        {tab === 'assistant' && <Assistant lang={lang} t={t} />}
-        {tab === 'calculator' && <Calculator lang={lang} t={t} />}
-        {tab === 'benchmark' && <Benchmark lang={lang} t={t} />}
-        {tab === 'amendments' && <AmendmentManager user={user} t={t} />}
+        {current === 'assistant' && <Assistant lang={lang} t={t} initialQuestion={prefill} />}
+        {current === 'calculator' && <Calculator lang={lang} t={t} />}
+        {current === 'updates' && updates.length > 0 && <LatestUpdates amendments={updates} t={t} onAsk={askAbout} />}
+        {current === 'amendments' && user && <AmendmentManager user={user} t={t} />}
       </main>
       {showLogin && <LoginModal user={user} onClose={() => setShowLogin(false)} t={t} />}
       <footer className="footer">

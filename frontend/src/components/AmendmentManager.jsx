@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react'
 import {
-  collection, addDoc, onSnapshot, orderBy, query, serverTimestamp, deleteDoc, doc
+  collection, addDoc, onSnapshot, orderBy, query, serverTimestamp, deleteDoc, updateDoc, doc
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
+import { apiRules } from '../api.js'
 import './AmendmentManager.css'
+
+const OTHER = '__other__'
 
 export default function AmendmentManager({ user, t }) {
   const [amendments, setAmendments] = useState([])
+  const [rules, setRules] = useState([])
   const [form, setForm] = useState({ rule_number: '', title: '', text: '', effective_date: '' })
+  const [customRule, setCustomRule] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [deleting, setDeleting] = useState(null)
@@ -19,16 +24,27 @@ export default function AmendmentManager({ user, t }) {
     })
   }, [])
 
+  useEffect(() => {
+    apiRules().then(d => setRules(d.rules)).catch(() => {})
+  }, [])
+
+  async function toggleActive(a) {
+    await updateDoc(doc(db, 'amendments', a.id), { active: a.active === false })
+  }
+
   async function handleAdd(e) {
     e.preventDefault()
     setSaving(true)
     try {
       await addDoc(collection(db, 'amendments'), {
         ...form,
+        rule_number: form.rule_number === OTHER ? customRule.trim() : form.rule_number,
+        active: true,
         added_by: user.email,
         added_at: serverTimestamp(),
       })
       setForm({ rule_number: '', title: '', text: '', effective_date: '' })
+      setCustomRule('')
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } finally {
@@ -60,9 +76,19 @@ export default function AmendmentManager({ user, t }) {
           <form onSubmit={handleAdd} className="amend-fields">
             <div className="amend-row">
               <div className="field">
-                <label>{t('Rule Number', 'नियम संख्या')}</label>
-                <input type="text" placeholder="e.g. 21, 56-A" value={form.rule_number}
-                  onChange={e => setForm(f => ({ ...f, rule_number: e.target.value }))} required />
+                <label>{t('Rule', 'नियम')}</label>
+                <select value={form.rule_number} required
+                  onChange={e => setForm(f => ({ ...f, rule_number: e.target.value }))}>
+                  <option value="" disabled>{t('Choose a rule from the list…', 'सूची से नियम चुनें…')}</option>
+                  {rules.map(r => (
+                    <option key={r.rule} value={r.rule}>Rule {r.rule} — {r.title}</option>
+                  ))}
+                  <option value={OTHER}>{t('Other / new rule…', 'अन्य / नया नियम…')}</option>
+                </select>
+                {form.rule_number === OTHER && (
+                  <input type="text" style={{ marginTop: 8 }} placeholder="e.g. 56-A" value={customRule}
+                    onChange={e => setCustomRule(e.target.value)} required />
+                )}
               </div>
               <div className="field">
                 <label>{t('Effective Date', 'प्रभावी तिथि')}</label>
@@ -112,7 +138,7 @@ export default function AmendmentManager({ user, t }) {
         ) : (
           <div className="amend-cards">
             {amendments.map(a => (
-              <div key={a.id} className="amend-card card">
+              <div key={a.id} className={`amend-card card ${a.active === false ? 'amend-off' : ''}`}>
                 <div className="amend-card-top">
                   <div className="amend-meta">
                     <span className="rule-chip">Rule {a.rule_number}</span>
@@ -123,6 +149,13 @@ export default function AmendmentManager({ user, t }) {
                       </span>
                     )}
                   </div>
+                  {user && (
+                    <label className="amend-switch" title={t('Use this amendment in answers', 'उत्तरों में यह संशोधन लागू करें')}>
+                      <input type="checkbox" checked={a.active !== false} onChange={() => toggleActive(a)} />
+                      <span className="amend-switch-track" />
+                      <span className="amend-switch-label">{a.active === false ? t('Off', 'बंद') : t('In use', 'लागू')}</span>
+                    </label>
+                  )}
                   {user && (
                     <button className="amend-delete" onClick={() => handleDelete(a.id)} disabled={deleting === a.id} title={t('Delete', 'हटाएं')}>
                       {deleting === a.id ? <span className="spinner" style={{ width: 14, height: 14 }} /> : (

@@ -22,42 +22,49 @@ const tabs = [
     hi: 'काउंटर कैलकुलेटर',
   },
   {
-    id: 'benchmark',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    ),
-    en: 'Live Benchmark',
-    hi: 'लाइव बेंचमार्क',
-  },
-  {
     id: 'amendments',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
     ),
-    en: 'Amendments',
-    hi: 'संशोधन',
-    clerkOnly: false,
+    en: 'Manage Amendments',
+    hi: 'संशोधन प्रबंधन',
+    clerkOnly: true,
   },
 ]
 
-export default function TabBar({ tab, setTab, t, user }) {
+const updatesTab = {
+  id: 'updates',
+  icon: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  ),
+  en: 'Latest Updates',
+  hi: 'नवीनतम अपडेट',
+}
+
+export default function TabBar({ tab, setTab, t, user, updatesCount }) {
+  const visible = [
+    ...tabs.slice(0, 2),
+    ...(updatesCount > 0 ? [updatesTab] : []),
+    ...tabs.slice(2).filter(x => !x.clerkOnly || user),
+  ]
   return (
     <nav className="tabbar" aria-label="Navigation">
       <div className="tabbar-inner">
-        {tabs.map(({ id, icon, en, hi }) => (
+        {visible.map(({ id, icon, en, hi, clerkOnly }) => (
           <button
             key={id}
-            className={`tab-btn ${tab === id ? 'active' : ''} ${id === 'amendments' && user ? 'tab-clerk' : ''}`}
+            className={`tab-btn ${tab === id ? 'active' : ''} ${clerkOnly ? 'tab-clerk' : ''}`}
             onClick={() => setTab(id)}
             aria-current={tab === id ? 'page' : undefined}
           >
             {icon}
             <span>{t(en, hi)}</span>
-            {id === 'amendments' && user && <span className="tab-clerk-dot" />}
+            {id === 'updates' && <span className="tab-count">{updatesCount}</span>}
+            {clerkOnly && <span className="tab-clerk-dot" />}
           </button>
         ))}
       </div>
