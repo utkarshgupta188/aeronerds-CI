@@ -19,8 +19,8 @@ const EXAMPLES_HI = [
   'फार्म हाउस के लिए न्यूनतम प्लॉट साइज क्या है?',
 ]
 
-export default function Assistant({ lang, t }) {
-  const [question, setQuestion] = useState('')
+export default function Assistant({ lang, t, initialQuestion = '' }) {
+  const [question, setQuestion] = useState(initialQuestion)
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -55,7 +55,7 @@ export default function Assistant({ lang, t }) {
     }
   }
 
-  function useExample(q) {
+  function pickExample(q) {
     setQuestion(q)
     setResult(null)
     setError(null)
@@ -107,7 +107,7 @@ export default function Assistant({ lang, t }) {
       <div className="examples-row">
         <span className="examples-label">{t('Try:', 'उदाहरण:')}</span>
         {examples.map((ex, i) => (
-          <button key={i} className="example-pill" onClick={() => useExample(ex)}>
+          <button key={i} className="example-pill" onClick={() => pickExample(ex)}>
             {ex.length > 55 ? ex.slice(0, 55) + '…' : ex}
           </button>
         ))}

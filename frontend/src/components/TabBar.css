@@ -39,6 +39,12 @@
 
 .tab-clerk { position: relative; }
 
+.tab-count {
+  background: var(--saffron); color: #fff;
+  border-radius: 99px; padding: 0 7px; min-width: 20px;
+  font-size: 11px; font-weight: 700; line-height: 18px; text-align: center;
+}
+
 .tab-clerk-dot {
   width: 7px; height: 7px;
   background: #4ADE80; border-radius: 50%;
