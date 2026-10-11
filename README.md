@@ -45,7 +45,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
    npm run dev
    ```
 
-5. **Open** `http://localhost:5173`.
+5. **Open** `http://localhost:5173` (portal-style landing page; the tool itself is at `http://localhost:5173/#app`).
 
 ## Repository structure
 

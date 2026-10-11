@@ -74,6 +74,7 @@ export default function App() {
         t={t}
         onOpen={(nextTab = 'assistant') => openTool(nextTab)}
         onAsk={q => openTool('assistant', q)}
+        updates={updates}
       />
     )
   }
