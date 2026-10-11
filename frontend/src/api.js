@@ -20,6 +20,6 @@ async function get(path) {
   return res.json()
 }
 
-export const apiAsk       = (question, top_k = 5) => post('/api/ask', { question, top_k })
+export const apiAsk       = (question, top_k = 5, amendments = []) => post('/api/ask', { question, top_k, amendments })
 export const apiCalculate = (body) => post('/api/calculate', body)
 export const apiBenchmark = () => get('/api/benchmark')

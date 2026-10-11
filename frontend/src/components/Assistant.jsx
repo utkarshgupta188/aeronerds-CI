@@ -1,4 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
+import { db } from '../firebase.js'
 import { apiAsk } from '../api.js'
 import AnswerCard from './AnswerCard.jsx'
 import './Assistant.css'
@@ -22,7 +24,18 @@ export default function Assistant({ lang, t }) {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [amendments, setAmendments] = useState([])
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    const q = query(collection(db, 'amendments'), orderBy('added_at', 'desc'))
+    return onSnapshot(q, snap => {
+      setAmendments(snap.docs.map(d => {
+        const a = d.data()
+        return `[AMENDMENT — Rule ${a.rule_number}, effective ${a.effective_date || 'unknown'}] ${a.title}: ${a.text}`
+      }))
+    })
+  }, [])
 
   const examples = lang === 'hi' ? EXAMPLES_HI : EXAMPLES_EN
 
@@ -34,7 +47,7 @@ export default function Assistant({ lang, t }) {
     setResult(null)
     setError(null)
     try {
-      const data = await apiAsk(q)
+      const data = await apiAsk(q, 5, amendments)
       setResult(data)
     } catch (err) {
       setError(err.message)

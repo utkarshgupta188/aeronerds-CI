@@ -84,7 +84,7 @@ def _is_not_found(text: str) -> bool:
     return cleaned in ("NOT_FOUND", "NOTFOUND")
 
 
-def answer(question: str, chunks: List[dict]) -> dict:
+def answer(question: str, chunks: List[dict], amendments: List[str] = None) -> dict:
     lang = _detect_language(question)
     if lang == "hi":
         system = _SYSTEM_HI
@@ -96,7 +96,10 @@ def answer(question: str, chunks: List[dict]) -> dict:
     rule_text = "\n\n".join(
         f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
     )
-    user_msg = f"Relevant rules:\n{rule_text}\n\nQuestion: {question}"
+    amend_text = ""
+    if amendments:
+        amend_text = "\n\nLATEST AMENDMENTS (take precedence over base rules):\n" + "\n".join(amendments)
+    user_msg = f"Relevant rules:\n{rule_text}{amend_text}\n\nQuestion: {question}"
 
     try:
         client = Cerebras(api_key=os.environ["CEREBRAS_API_KEY"])
