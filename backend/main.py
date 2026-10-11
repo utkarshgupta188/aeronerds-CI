@@ -44,6 +44,7 @@ def get_index():
 class AskRequest(BaseModel):
     question: str
     top_k: int = 5
+    amendments: list[str] = []
 
 
 class CalcRequest(BaseModel):
@@ -58,7 +59,7 @@ class CalcRequest(BaseModel):
 def ask(req: AskRequest):
     rules, vec = get_index()
     chunks = search(req.question, rules, vec, top_k=req.top_k)
-    result = llm_answer(req.question, chunks)
+    result = llm_answer(req.question, chunks, amendments=req.amendments)
     return result
 
 
