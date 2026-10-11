@@ -47,6 +47,12 @@ class CalcRequest(BaseModel):
     building_type: str = "residential"  # residential | commercial | farm_house
 
 
+@app.get("/api/rules")
+def list_rules():
+    rules, _ = get_index()
+    return {"rules": [{"rule": str(r["rule"]), "title": r["title"]} for r in rules]}
+
+
 @app.post("/api/ask")
 def ask(req: AskRequest):
     rules, vec = get_index()

@@ -103,6 +103,30 @@ textarea {
 }
 .amend-delete:hover { background: var(--red-light); color: var(--red); }
 
+.amend-meta { flex: 1; }
+.amend-off { opacity: 0.6; }
+.amend-off .amend-card-text { text-decoration: line-through; text-decoration-color: var(--border); }
+
+.amend-switch {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin: 0 10px 0 0; cursor: pointer;
+  text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+}
+.amend-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.amend-switch-track {
+  width: 34px; height: 20px; border-radius: 99px;
+  background: var(--border); position: relative; transition: background 0.15s;
+}
+.amend-switch-track::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25); transition: transform 0.15s;
+}
+.amend-switch input:checked + .amend-switch-track { background: var(--green); }
+.amend-switch input:checked + .amend-switch-track::after { transform: translateX(14px); }
+.amend-switch input:focus-visible + .amend-switch-track { outline: 2px solid var(--saffron); outline-offset: 2px; }
+
 @media (max-width: 600px) {
   .amend-row { grid-template-columns: 1fr; }
 }
