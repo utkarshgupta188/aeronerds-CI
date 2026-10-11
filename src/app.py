@@ -29,17 +29,20 @@ if question.strip():
         chunks = search(question, st.session_state.rules, st.session_state.vectorizer, top_k=5)
         result = answer(question, chunks)
 
-    if result["not_found"]:
+    if result.get("error"):
+        st.error(result["answer_text"])
+    elif result["not_found"]:
         st.warning("**Not found in the rules.** The MP Bhumi Vikas Rules 2012 (consolidated to 6 March 2025) do not appear to address this question.")
     else:
         st.success(result["answer_text"])
         if result["rule_numbers"]:
             st.markdown(f"**Rule(s) cited:** {', '.join(result['rule_numbers'])}")
 
-    with st.expander("Source rules used"):
-        for excerpt in result["source_excerpts"]:
-            st.markdown(excerpt)
-            st.divider()
+    if not result.get("error") and result["source_excerpts"]:
+        with st.expander("Source rules used"):
+            for excerpt in result["source_excerpts"]:
+                st.markdown(excerpt)
+                st.divider()
 
 st.markdown("---")
-st.caption("Based on MP Bhumi Vikas Rules 2012, consolidated to **6 March 2025**. Not legal advice. The clerk decides; this tool points to the rule.")
+st.caption("Based on MP Bhumi Vikas Rules 2012, consolidated to **6 March 2025**. Amendments after 6 March 2025 are not included — verify against the current gazette. Not legal advice. The clerk decides; this tool points to the rule.")

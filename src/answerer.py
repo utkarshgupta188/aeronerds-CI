@@ -23,11 +23,20 @@ _SYSTEM_HI = """आप भोपाल नगर पालिका निगम
 कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
 उत्तर संक्षिप्त रखें (150 शब्दों से कम)।"""
 
+_AMENDMENT_NOTE = "\n\n_(Based on rules consolidated to 6 March 2025. Amendments after that date are not included — verify against the current gazette.)_"
+
+_RULE_RE = re.compile(r"(?:[Rr]ules?|नियम)\s*\(?(\d+(?:-[A-Za-z]+)?(?:[A-Za-z])?)\)?")
+
 
 def _detect_language(text: str) -> str:
     if re.search(r"[ऀ-ॿ]", text):
         return "hi"
     return "en"
+
+
+def _is_not_found(text: str) -> bool:
+    cleaned = re.sub(r"[*`'\"\n\r.,!? ]", "", text).strip().upper()
+    return cleaned in ("NOT_FOUND", "NOTFOUND")
 
 
 def answer(question: str, chunks: List[dict]) -> dict:
@@ -39,32 +48,68 @@ def answer(question: str, chunks: List[dict]) -> dict:
     )
     user_msg = f"Relevant rules:\n{rule_text}\n\nQuestion: {question}"
 
-    client = Cerebras(api_key=os.environ.get("CEREBRAS_API_KEY"))
-    response = client.chat.completions.create(
-        model=_MODEL,
-        max_tokens=1024,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user_msg},
-        ],
-    )
-    raw = response.choices[0].message.content
-    text = raw.strip() if raw else "NOT_FOUND"
+    try:
+        client = Cerebras(api_key=os.environ["CEREBRAS_API_KEY"])
+        response = client.chat.completions.create(
+            model=_MODEL,
+            max_tokens=1024,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_msg},
+            ],
+        )
+    except KeyError:
+        return {
+            "answer_text": "Error: CEREBRAS_API_KEY not set.",
+            "rule_numbers": [],
+            "source_excerpts": [],
+            "not_found": False,
+            "language": lang,
+            "error": True,
+        }
+    except Exception as exc:
+        return {
+            "answer_text": f"Error contacting Cerebras API: {exc}",
+            "rule_numbers": [],
+            "source_excerpts": [],
+            "not_found": False,
+            "language": lang,
+            "error": True,
+        }
 
-    not_found = "NOT_FOUND" in text
+    choice = response.choices[0]
+    raw = choice.message.content
+    finish_reason = getattr(choice, "finish_reason", None)
 
-    rule_numbers = re.findall(r"[Rr]ule\s+(\d+[\w\-]*)", text)
-    if not rule_numbers and not not_found:
-        rule_numbers = [c["rule"] for c in chunks[:1]]
+    if finish_reason == "length" or raw is None:
+        return {
+            "answer_text": "Error: response was cut off. Try a shorter question or fewer rules.",
+            "rule_numbers": [],
+            "source_excerpts": [],
+            "not_found": False,
+            "language": lang,
+            "error": True,
+        }
+
+    text = raw.strip()
+    not_found = _is_not_found(text)
+
+    rule_numbers = _RULE_RE.findall(text)
 
     source_excerpts = [
-        f"Rule {c['rule']} — {c['title']}: {c['text'][:300]}..." for c in chunks
+        f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
     ]
 
+    if not_found:
+        answer_text = "Not found in the rules (as consolidated to 6 March 2025)."
+    else:
+        answer_text = text + _AMENDMENT_NOTE
+
     return {
-        "answer_text": text if not not_found else "Not found in the rules (as consolidated to 6 March 2025).",
+        "answer_text": answer_text,
         "rule_numbers": rule_numbers,
         "source_excerpts": source_excerpts,
         "not_found": not_found,
         "language": lang,
+        "error": False,
     }

@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import re
 from typing import List, Tuple
 
 import numpy as np
@@ -8,6 +9,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 _CACHE_FILE = "tfidf_cache.pkl"
+_SUBRULE_RE = re.compile(r"(\d+)-([A-Za-z])")
+
+
+def _normalize_subrules(text: str) -> str:
+    """Normalize '12-A' → '12A' so TF-IDF keeps sub-rule ids as one token."""
+    return _SUBRULE_RE.sub(lambda m: m.group(1) + m.group(2).lower(), text)
 
 
 def embed_rules(jsonl_path: str) -> Tuple[List[dict], TfidfVectorizer]:
@@ -19,11 +26,12 @@ def embed_rules(jsonl_path: str) -> Tuple[List[dict], TfidfVectorizer]:
             if line:
                 rules.append(json.loads(line))
 
-    texts = [r["title"] + " " + r["text"] for r in rules]
+    texts = [_normalize_subrules(r["title"] + " " + r["text"]) for r in rules]
     vectorizer = TfidfVectorizer(
         ngram_range=(1, 2),
         min_df=1,
         sublinear_tf=True,
+        token_pattern=r"(?u)\b\w+\b",
     )
     vectorizer.fit(texts)
     return rules, vectorizer
@@ -72,8 +80,8 @@ def _expand_query(query: str) -> str:
 
 def search(query: str, rules: List[dict], vectorizer: TfidfVectorizer, top_k: int = 5) -> List[dict]:
     """Return top_k rules most similar to query, with synonym expansion."""
-    expanded = _expand_query(query)
-    texts = [r["title"] + " " + r["text"] for r in rules]
+    expanded = _normalize_subrules(_expand_query(query))
+    texts = [_normalize_subrules(r["title"] + " " + r["text"]) for r in rules]
     doc_matrix = vectorizer.transform(texts)
     query_vec = vectorizer.transform([expanded])
     scores = cosine_similarity(query_vec, doc_matrix)[0]
