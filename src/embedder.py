@@ -29,6 +29,21 @@ def embed_rules(jsonl_path: str) -> Tuple[List[dict], TfidfVectorizer]:
     return rules, vectorizer
 
 
+_HINDI_KEYWORDS = {
+    "प्लॉट": "plot",
+    "सड़क": "road street",
+    "जगह": "open space",
+    "खाली": "open space",
+    "फीस": "fees",
+    "परमिशन": "permission",
+    "बिल्डिंग": "building",
+    "मंजिल": "floor",
+    "ऊंचाई": "height",
+    "पीछे": "rear",
+    "आगे": "front",
+    "नियम": "rule",
+}
+
 _SYNONYMS = {
     "setback": "open space",
     "gap": "open space",
@@ -49,6 +64,9 @@ def _expand_query(query: str) -> str:
     for term, expansion in _SYNONYMS.items():
         if term in q:
             extras.append(expansion)
+    for hindi_term, english in _HINDI_KEYWORDS.items():
+        if hindi_term in query:
+            extras.append(english)
     return query + " " + " ".join(extras) if extras else query
 
 

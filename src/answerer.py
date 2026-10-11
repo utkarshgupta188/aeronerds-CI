@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_MODEL = "qwen-3.8-27b"
+_MODEL = "gpt-oss-120b"
 
 _SYSTEM_EN = """You are a building-rules assistant for Bhopal Municipal Corporation clerks.
 Answer questions using ONLY the rule text provided below.
@@ -48,7 +48,8 @@ def answer(question: str, chunks: List[dict]) -> dict:
             {"role": "user", "content": user_msg},
         ],
     )
-    text = response.choices[0].message.content.strip()
+    raw = response.choices[0].message.content
+    text = raw.strip() if raw else "NOT_FOUND"
 
     not_found = "NOT_FOUND" in text
 
