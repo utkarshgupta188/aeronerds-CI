@@ -100,7 +100,7 @@ export default function Calculator({ lang, t }) {
             />
             <ResultTile
               icon="₹"
-              label={t('Permission Fee', 'अनुमति शुल्क')}
+              label={t('Total Permission Fee', 'कुल अनुमति शुल्क')}
               value={result.permission_fee.value != null ? `₹${result.permission_fee.value.toLocaleString('en-IN')}` : '—'}
               rule={result.permission_fee.rule}
               note={result.permission_fee.label}
@@ -110,6 +110,14 @@ export default function Calculator({ lang, t }) {
           <div className="side-note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             {result.side_note}
+          </div>
+          <div className="side-note" style={{marginTop:'0.4rem'}}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            {result.lift_note}
+          </div>
+          <div className="side-note" style={{marginTop:'0.4rem'}}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {result.dev_permission}
           </div>
           <div className="data-note">{result.data_note}</div>
         </div>

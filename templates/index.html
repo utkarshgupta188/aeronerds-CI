@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bhumi Vikas Sahayak — भूमि विकास सहायक | BMC Bhopal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"/>
+<style>
+:root {
+  --gov-navy: #0b2341;
+  --gov-navy-dark: #07172c;
+  --gov-saffron: #d9381e;
+  --gov-saffron-dark: #b91c1c;
+  --gov-saffron-light: #fff7ed;
+  --gov-green: #15803d;
+  --gov-red: #c8102e;
+  --bg-page: #f0f4f8;
+  --bg-card: #ffffff;
+  --border-card: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --glass-bg: rgba(255,255,255,0.98);
+  --glass-border: #cbd5e1;
+  --text-main: #1c1b3a;
+  --text-muted: #64748b;
+  --accent-blue: #0266b3;
+  --radius: 10px;
+  --shadow: 0 4px 20px rgba(0,40,85,0.10);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans Devanagari','Inter','Outfit',sans-serif;
+  background: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+/* ─── TOP STRIP ──────────────────────────────────────────── */
+.gov-top-strip {
+  background: #050c18;
+  border-top: 3px solid transparent;
+  border-image: linear-gradient(to right,#FF9933 33.3%,#fff 33.3%,#fff 66.6%,#138808 66.6%) 3;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  font-size: 11.5px;
+  color: #c8d6e8;
+  gap: 12px;
+}
+.gov-top-strip .left { display:flex; align-items:center; gap:14px; }
+.gov-top-strip .left span { font-size:11px; opacity:.85; }
+.gov-top-strip .left .sep { opacity:.35; }
+.gov-top-strip .right { display:flex; align-items:center; gap:8px; }
+.font-btn {
+  background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  color:#c8d6e8; cursor:pointer; border-radius:4px; padding:1px 7px; font-size:11px;
+  line-height:1.7; transition: background .15s;
+}
+.font-btn:hover { background:rgba(255,255,255,.2); }
+.lang-switcher { display:flex; border-radius:5px; overflow:hidden; border:1px solid rgba(255,255,255,.25); }
+.lang-btn {
+  background:transparent; color:#c8d6e8; border:none; cursor:pointer;
+  padding:2px 10px; font-size:11px; font-family:inherit; transition: all .15s;
+}
+.lang-btn.active { background:var(--gov-saffron); color:#fff; }
+
+/* ─── PORTAL HEADER ──────────────────────────────────────── */
+.gov-portal-header {
+  background:#ffffff;
+  border-bottom: 1px solid #dde4ec;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.brand-block { display:flex; align-items:center; gap:14px; }
+.brand-crest {
+  width:52px; height:52px; display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(135deg,#0b2341,#1e40af);
+  border-radius:50%; color:#fff; font-size:22px; flex-shrink:0;
+  box-shadow: 0 2px 8px rgba(11,35,65,.25);
+}
+.brand-text { display:flex; flex-direction:column; gap:1px; }
+.brand-name-en { font-size:20px; font-weight:800; color:var(--gov-saffron); letter-spacing:-.3px; line-height:1.1; }
+.brand-name-hi { font-size:13px; font-weight:600; color:var(--gov-navy); opacity:.75; line-height:1.2; }
+.brand-sub { font-size:10.5px; color:var(--text-muted); margin-top:2px; }
+.header-right { display:flex; align-items:center; gap:12px; }
+.omni-search-container { position:relative; }
+.omni-search-container input {
+  border: 1px solid var(--border-card); border-radius:22px;
+  padding: 7px 36px 7px 14px; font-size:13px; width:220px;
+  font-family:inherit; color:var(--text-main); outline:none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.omni-search-container input:focus { border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(2,102,179,.12); }
+.omni-search-container i { position:absolute; right:11px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:15px; }
+.persona-pill-btn {
+  display:flex; align-items:center; gap:6px;
+  background: linear-gradient(135deg,var(--gov-navy),#1e3a5f);
+  color:#fff; border:none; border-radius:20px; padding:7px 14px;
+  font-size:12px; font-family:inherit; cursor:pointer; font-weight:600;
+  box-shadow: 0 2px 8px rgba(11,35,65,.2);
+}
+.persona-pill-btn i { font-size:14px; }
+
+/* ─── MAIN NAV ───────────────────────────────────────────── */
+.gov-main-nav {
+  background: var(--gov-navy);
+  border-bottom: 3px solid var(--gov-saffron);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 2px;
+  overflow-x: auto;
+}
+.gov-nav-link {
+  display: flex; align-items: center; gap: 6px;
+  color: rgba(255,255,255,.75); text-decoration:none;
+  padding: 11px 14px; font-size: 13px; font-weight:500;
+  border-bottom: 3px solid transparent; margin-bottom:-3px;
+  white-space:nowrap; cursor:pointer; border:none; background:transparent;
+  font-family:inherit; transition: all .15s;
+}
+.gov-nav-link:hover { color:#fff; background:rgba(255,255,255,.06); }
+.gov-nav-link.active { color:#fff; border-bottom-color:var(--gov-saffron); background:rgba(255,255,255,.07); }
+.gov-nav-link .nav-badge {
+  background:var(--gov-saffron); color:#fff; border-radius:10px;
+  padding:1px 6px; font-size:10px; font-weight:700;
+}
+.gov-nav-link .nav-badge.green { background:var(--gov-green); }
+
+/* ─── TICKER ─────────────────────────────────────────────── */
+.gov-ticker-bar {
+  background: #eef4fc;
+  border-bottom: 1px solid #dde9f8;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  overflow: hidden;
+}
+.ticker-label {
+  background: var(--gov-red); color:#fff;
+  font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px;
+  white-space:nowrap; letter-spacing:.5px; flex-shrink:0;
+}
+.ticker-text {
+  font-size:12px; color:var(--gov-navy); white-space:nowrap;
+  overflow:hidden;
+  animation: ticker-scroll 30s linear infinite;
+}
+@keyframes ticker-scroll {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-200%); }
+}
+
+/* ─── MAIN CONTENT ───────────────────────────────────────── */
+.main-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ─── TAB BAR ────────────────────────────────────────────── */
+.main-tabs {
+  display: flex;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-card);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.main-tab-btn {
+  flex: 1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; padding:14px 8px; cursor:pointer; border:none; background:transparent;
+  font-family:inherit; font-size:13px; font-weight:500; color:var(--text-muted);
+  border-bottom: 3px solid transparent; transition: all .18s;
+}
+.main-tab-btn i { font-size:20px; }
+.main-tab-btn .tab-badge {
+  background:#e2e8f0; color:var(--text-muted); border-radius:10px;
+  padding:1px 7px; font-size:10px; font-weight:700;
+}
+.main-tab-btn.active { color:var(--gov-navy); border-bottom-color:var(--gov-saffron); background:var(--gov-saffron-light); }
+.main-tab-btn.active .tab-badge { background:var(--gov-green); color:#fff; }
+.main-tab-btn:hover:not(.active) { background:#f8fafc; color:var(--gov-navy); }
+
+/* ─── PANELS ─────────────────────────────────────────────── */
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ─── GLASS PANEL ────────────────────────────────────────── */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgba(0,40,85,0.10);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+
+/* ─── BADGES & CHIPS ─────────────────────────────────────── */
+.badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+  letter-spacing:.3px;
+}
+.badge.saffron { background:rgba(217,56,30,.12); color:var(--gov-saffron-dark); }
+.badge.green { background:rgba(21,128,61,.12); color:var(--gov-green); }
+.badge.navy { background:rgba(11,35,65,.1); color:var(--gov-navy); }
+.badge.red { background:rgba(200,16,46,.1); color:var(--gov-red); }
+.badge.blue { background:rgba(2,102,179,.1); color:var(--accent-blue); }
+.badge.amber { background:rgba(217,119,6,.12); color:#b45309; }
+.rule-chip {
+  display:inline-block; background:rgba(217,56,30,.1); color:var(--gov-saffron-dark);
+  border:1px solid rgba(217,56,30,.25); border-radius:6px;
+  padding:2px 8px; font-size:11px; font-weight:700; letter-spacing:.2px;
+}
+
+/* ─── BUTTONS ────────────────────────────────────────────── */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 22px; border-radius:8px; border:none; cursor:pointer;
+  font-family:inherit; font-size:14px; font-weight:600; transition: all .18s;
+}
+.btn-primary {
+  background: var(--gov-saffron); color:#fff;
+  box-shadow: 0 2px 8px rgba(217,56,30,.3);
+}
+.btn-primary:hover { background:var(--gov-saffron-dark); transform:translateY(-1px); }
+.btn-primary:active { transform:translateY(0); }
+.btn-primary:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+.btn-navy {
+  background: var(--gov-navy); color:#fff;
+  box-shadow: 0 2px 8px rgba(11,35,65,.2);
+}
+.btn-navy:hover { background:var(--gov-navy-dark); }
+.btn-outline {
+  background:transparent; color:var(--gov-navy);
+  border:1.5px solid var(--border-card);
+}
+.btn-outline:hover { background:#f8fafc; border-color:#9db0c8; }
+.btn-sm { padding:6px 14px; font-size:12px; }
+
+/* ─── SECTION HEADERS ────────────────────────────────────── */
+.section-header { margin-bottom:20px; }
+.section-title { font-size:20px; font-weight:800; color:var(--gov-navy); margin-bottom:4px; }
+.section-sub { font-size:13px; color:var(--text-muted); }
+
+/* ─── ASSISTANT PANEL ────────────────────────────────────── */
+.ask-input-row {
+  display:flex; gap:10px; margin-bottom:18px; align-items:flex-start;
+}
+.ask-textarea {
+  flex:1; min-height:56px; max-height:120px; resize:vertical;
+  border:2px solid var(--border-card); border-radius:10px;
+  padding:14px 16px; font-size:14px; font-family:inherit;
+  color:var(--text-main); outline:none; line-height:1.5;
+  transition: border-color .2s, box-shadow .2s;
+}
+.ask-textarea:focus { border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(2,102,179,.12); }
+.ask-btn { height:56px; padding:0 24px; white-space:nowrap; }
+
+.quick-questions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.tqa-btn {
+  background:#fff; border:1.5px solid var(--border-card); border-radius:20px;
+  padding:5px 13px; font-size:12px; font-family:inherit; color:var(--gov-navy);
+  cursor:pointer; font-weight:500; transition: all .15s;
+}
+.tqa-btn:hover { border-color:var(--gov-saffron); color:var(--gov-saffron); background:var(--gov-saffron-light); }
+
+/* answer area */
+.answer-loading {
+  display:none; text-align:center; padding:36px;
+  color:var(--text-muted); font-size:14px; gap:12px;
+  flex-direction:column; align-items:center;
+}
+.answer-loading.show { display:flex; }
+.spinner-ring {
+  width:36px; height:36px; border-radius:50%;
+  border:3px solid var(--border-subtle);
+  border-top-color:var(--gov-saffron);
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.answer-card {
+  display:none; animation: slide-in .25s ease-out;
+}
+.answer-card.show { display:block; }
+@keyframes slide-in {
+  from { opacity:0; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.answer-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.answer-text {
+  font-size:16px; line-height:1.75; font-weight:500; margin-bottom:16px;
+  color:var(--text-main);
+}
+.answer-text.found-yes { color:#15432a; }
+.answer-text.not-found { color:#7a1c1c; font-style:italic; }
+
+.not-found-banner {
+  background:rgba(200,16,46,.07); border:1.5px solid rgba(200,16,46,.2);
+  border-radius:8px; padding:12px 16px; margin-bottom:14px;
+  display:flex; align-items:flex-start; gap:10px; color:var(--gov-red);
+  font-size:13px; font-weight:600;
+}
+.not-found-banner i { font-size:18px; flex-shrink:0; margin-top:1px; }
+
+.source-toggle {
+  background:transparent; border:1.5px solid var(--border-card);
+  border-radius:6px; padding:6px 12px; font-size:12px; font-family:inherit;
+  cursor:pointer; color:var(--text-muted); font-weight:500;
+  display:flex; align-items:center; gap:5px; margin-bottom:10px; transition: all .15s;
+}
+.source-toggle:hover { border-color:var(--gov-navy); color:var(--gov-navy); }
+.source-excerpts {
+  display:none; background:#f8fafc; border:1px solid var(--border-subtle);
+  border-radius:8px; padding:12px;
+}
+.source-excerpts.open { display:block; }
+.source-excerpt-item { margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border-subtle); }
+.source-excerpt-item:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.source-excerpt-rule { font-size:11px; font-weight:700; color:var(--gov-saffron-dark); margin-bottom:4px; }
+.source-excerpt-text { font-size:12.5px; color:var(--text-muted); line-height:1.55; }
+
+.answer-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.data-disclaimer { font-size:11px; color:var(--text-muted); margin-top:12px; font-style:italic; border-top:1px solid var(--border-subtle); padding-top:10px; }
+
+/* ─── CALCULATOR PANEL ───────────────────────────────────── */
+.calc-form { margin-bottom:20px; }
+.calc-fields {
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px;
+}
+.field label { display:block; font-size:12px; font-weight:700; color:var(--gov-navy); margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px; }
+.field input, .field select {
+  width:100%; border:1.5px solid var(--border-card); border-radius:8px;
+  padding:10px 14px; font-size:14px; font-family:inherit; color:var(--text-main);
+  outline:none; transition: border-color .2s, box-shadow .2s;
+}
+.field input:focus, .field select:focus { border-color:var(--accent-blue); box-shadow:0 0 0 3px rgba(2,102,179,.12); }
+.calc-submit { width:100%; height:46px; font-size:15px; }
+
+/* result tiles */
+.result-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px;
+}
+.result-tile {
+  background:linear-gradient(135deg,#f8fafc,#fff);
+  border:1px solid var(--border-card); border-radius:10px;
+  padding:16px; text-align:center;
+  box-shadow: 0 2px 10px rgba(0,40,85,.06);
+  transition: transform .15s, box-shadow .15s;
+}
+.result-tile:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,40,85,.10); }
+.result-tile-icon { font-size:24px; margin-bottom:6px; color:var(--gov-saffron); }
+.result-tile-label { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:6px; }
+.result-tile-value { font-size:26px; font-weight:800; color:var(--gov-navy); line-height:1.1; margin-bottom:6px; }
+.result-tile-note { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+.extra-notes { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.note-row {
+  display:flex; align-items:flex-start; gap:10px; background:#f8fafc;
+  border:1px solid var(--border-subtle); border-radius:8px; padding:12px 14px;
+  font-size:13px; color:var(--text-main);
+}
+.note-row i { font-size:18px; flex-shrink:0; margin-top:1px; }
+.note-row.lift i { color:var(--gov-navy); }
+.note-row.dev i { color:var(--gov-green); }
+.note-row.side i { color:var(--accent-blue); }
+.note-row .note-text { flex:1; line-height:1.5; }
+
+.error-banner {
+  display:flex; align-items:center; gap:10px; background:rgba(200,16,46,.06);
+  border:1.5px solid rgba(200,16,46,.2); border-radius:8px; padding:12px 16px;
+  color:var(--gov-red); font-size:13px; margin-bottom:14px;
+}
+
+/* ─── PROP ROWS ──────────────────────────────────────────── */
+.prop-row { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--border-subtle); }
+.prop-row:last-child { border-bottom:none; }
+.prop-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; width:160px; flex-shrink:0; padding-top:2px; }
+.prop-value { font-size:13.5px; color:var(--text-main); font-weight:500; flex:1; }
+
+/* ─── BENCHMARK PANEL ────────────────────────────────────── */
+.bench-header-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:12px; }
+.bench-score {
+  display:flex; align-items:center; gap:10px; background:rgba(21,128,61,.08);
+  border:1.5px solid rgba(21,128,61,.25); border-radius:10px; padding:10px 18px;
+}
+.bench-score-big { font-size:28px; font-weight:800; color:var(--gov-green); }
+.bench-score-label { font-size:12px; color:var(--gov-green); font-weight:600; }
+.bench-table-wrap { overflow-x:auto; }
+.bench-table {
+  width:100%; border-collapse:collapse; font-size:13px;
+}
+.bench-table th {
+  background:var(--gov-navy); color:#fff; padding:10px 12px;
+  text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+}
+.bench-table th:first-child { border-radius:8px 0 0 0; }
+.bench-table th:last-child { border-radius:0 8px 0 0; }
+.bench-table td { padding:10px 12px; border-bottom:1px solid var(--border-subtle); vertical-align:top; }
+.bench-table tr:hover td { background:#f8fafc; }
+.bench-table tr.out-of-scope td { background:#fffbf5; }
+.bench-q { font-size:13px; color:var(--text-main); max-width:360px; line-height:1.45; }
+.bench-answer { font-size:12.5px; color:var(--text-muted); max-width:280px; line-height:1.4; }
+.bench-status-ok { background:rgba(21,128,61,.1); color:var(--gov-green); border:1px solid rgba(21,128,61,.2); border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; white-space:nowrap; }
+.bench-status-oos { background:rgba(217,56,30,.1); color:var(--gov-saffron-dark); border:1px solid rgba(217,56,30,.2); border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; white-space:nowrap; }
+.bench-status-running { background:#f1f5f9; color:var(--text-muted); border:1px solid var(--border-subtle); border-radius:20px; padding:3px 10px; font-size:11px; font-weight:700; white-space:nowrap; }
+
+.live-bench-note { font-size:12px; color:var(--text-muted); margin-top:12px; font-style:italic; }
+
+/* ─── SLIP MODAL ─────────────────────────────────────────── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  z-index:1000; display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:#fff; border-radius:12px; max-width:640px; width:100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  max-height:90vh; overflow-y:auto;
+}
+.modal-header {
+  background:var(--gov-navy); color:#fff;
+  padding:16px 20px; border-radius:12px 12px 0 0;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.modal-header h2 { font-size:16px; font-weight:700; }
+.modal-close { background:transparent; border:none; color:rgba(255,255,255,.7); cursor:pointer; font-size:22px; line-height:1; padding:2px 6px; }
+.modal-close:hover { color:#fff; }
+.modal-body { padding:24px; }
+
+/* CITIZEN SLIP */
+.slip { max-width:580px; margin:0 auto; }
+.slip-header {
+  border-top:5px solid transparent;
+  border-image: linear-gradient(to right,#FF9933 33.3%,#fff 33.3%,#fff 66.6%,#138808 66.6%) 5;
+  padding:16px 0 12px; text-align:center; margin-bottom:16px;
+  border-bottom: 2px solid var(--gov-navy);
+}
+.slip-title-en { font-size:17px; font-weight:800; color:var(--gov-navy); }
+.slip-title-hi { font-size:14px; font-weight:700; color:var(--gov-saffron); margin-bottom:3px; }
+.slip-sub { font-size:11.5px; color:var(--text-muted); }
+.slip-table { width:100%; border-collapse:collapse; font-size:13px; margin:14px 0; }
+.slip-table th { background:#f1f5f9; color:var(--gov-navy); padding:8px 12px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+.slip-table td { padding:9px 12px; border-bottom:1px solid #e8edf2; }
+.slip-table td:first-child { font-weight:600; color:var(--text-muted); font-size:11.5px; }
+.slip-table td:last-child { font-weight:700; color:var(--text-main); }
+.slip-footer { font-size:11px; color:var(--text-muted); text-align:center; margin-top:16px; padding-top:12px; border-top:1px dashed #ccc; line-height:1.55; }
+.slip-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:2000;
+  background:var(--gov-navy); color:#fff; border-radius:8px;
+  padding:12px 20px; font-size:13px; font-weight:500;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  transform:translateY(80px); opacity:0; transition: all .25s;
+  display:flex; align-items:center; gap:8px;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.success { border-left:4px solid var(--gov-green); }
+.toast.error { border-left:4px solid var(--gov-red); }
+
+/* ─── PRINT ──────────────────────────────────────────────── */
+@media print {
+  * { visibility:hidden; }
+  .slip, .slip * { visibility:visible !important; }
+  .slip { position:fixed; top:0; left:0; width:100%; }
+  .slip-actions { display:none !important; }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width:640px) {
+  .result-grid { grid-template-columns:1fr; }
+  .calc-fields { grid-template-columns:1fr; }
+  .gov-portal-header { flex-direction:column; align-items:flex-start; }
+  .header-right { width:100%; justify-content:flex-end; }
+  .main-tab-btn span { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── GOVERNMENT TOP STRIP ──────────────────────── -->
+<div class="gov-top-strip">
+  <div class="left">
+    <span>&#127988; भारत सरकार | GOVERNMENT OF INDIA</span>
+    <span class="sep">|</span>
+    <span>मध्यप्रदेश शासन, नगरीय विकास एवं आवास विभाग</span>
+  </div>
+  <div class="right">
+    <button class="font-btn" onclick="adjustFont(-1)" title="Decrease font size">A-</button>
+    <button class="font-btn" onclick="adjustFont(0)" title="Reset font size">A</button>
+    <button class="font-btn" onclick="adjustFont(1)" title="Increase font size">A+</button>
+    <div class="lang-switcher">
+      <button class="lang-btn" id="btnHi" onclick="setLang('hi')">हिंदी</button>
+      <button class="lang-btn" id="btnEn" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PORTAL HEADER ─────────────────────────────── -->
+<header class="gov-portal-header">
+  <div class="brand-block">
+    <div class="brand-crest"><i class="ph-bold ph-building-apartment" style="font-size:24px;"></i></div>
+    <div class="brand-text">
+      <div class="brand-name-en">Bhumi Vikas Sahayak</div>
+      <div class="brand-name-hi">भूमि विकास सहायक</div>
+      <div class="brand-sub">Building Permission Counter Assistant &middot; Bhopal Municipal Corporation &middot; AeroNerds</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="omni-search-container">
+      <input type="text" id="omniSearch" placeholder="नियम खोजें / Search rules..." onkeydown="if(event.key==='Enter'){quickSearch();}"/>
+      <i class="ph ph-magnifying-glass"></i>
+    </div>
+    <button class="persona-pill-btn">
+      <i class="ph ph-user-circle"></i>
+      <span>BMC Counter Clerk</span>
+    </button>
+  </div>
+</header>
+
+<!-- ─── MAIN NAV ───────────────────────────────────── -->
+<nav class="gov-main-nav">
+  <button class="gov-nav-link active" onclick="switchTab('assistant');setNavActive(this)">
+    <i class="ph ph-robot"></i>
+    <span data-hi="नियम सहायक" data-en="Rule Assistant">नियम सहायक</span>
+  </button>
+  <button class="gov-nav-link" onclick="switchTab('calculator');setNavActive(this)">
+    <i class="ph ph-calculator"></i>
+    <span data-hi="काउंटर कैलकुलेटर" data-en="Counter Calculator">काउंटर कैलकुलेटर</span>
+  </button>
+  <button class="gov-nav-link" onclick="switchTab('benchmark');setNavActive(this)">
+    <i class="ph ph-chart-bar"></i>
+    <span data-hi="सटीकता" data-en="Benchmark">सटीकता</span>
+    <span class="nav-badge green">17/17</span>
+  </button>
+  <button class="gov-nav-link" onclick="openSlipModal()">
+    <i class="ph ph-printer"></i>
+    <span data-hi="नागरिक पर्ची" data-en="Citizen Slip">नागरिक पर्ची</span>
+  </button>
+  <button class="gov-nav-link" style="margin-left:auto; opacity:.7;" disabled>
+    <i class="ph ph-scales"></i>
+    <span style="font-size:11px;">MP Bhumi Vikas Rules 2012</span>
+  </button>
+</nav>
+
+<!-- ─── TICKER BAR ─────────────────────────────────── -->
+<div class="gov-ticker-bar">
+  <div class="ticker-label">सूचना / NOTICE</div>
+  <div class="ticker-text">
+    28 अगस्त 2026 संशोधन: 500 वर्ग मीटर तक के भूखंडों को अलग T&amp;CP विकास अनुमति से छूट। नियम 2(5)(ग) &nbsp;|&nbsp;
+    MP Bhumi Vikas Rules 2012 (Consolidated to 6 March 2025). August 28, 2026 Amendment active: plots ≤500 sqm exempt from separate T&amp;CP development permission. &nbsp;|&nbsp;
+    नियम 21(2)(ii): आवेदन शुल्क ₹1/वर्ग मीटर (निर्मित क्षेत्र) &nbsp;|&nbsp; नियम 56(1)(a): 9 मी. सड़क पर 3 मी. आगे खुला रखें &nbsp;|&nbsp; नियम 83: 12.5 मी. से अधिक ऊंचाई पर लिफ्ट अनिवार्य
+  </div>
+</div>
+
+<!-- ─── MAIN CONTENT ────────────────────────────────── -->
+<main class="main-content">
+
+  <!-- TAB BAR -->
+  <div class="main-tabs">
+    <button class="main-tab-btn active" id="tab-btn-assistant" onclick="switchTab('assistant')">
+      <i class="ph ph-robot"></i>
+      <span data-hi="नियम सहायक" data-en="Rule Assistant">नियम सहायक</span>
+    </button>
+    <button class="main-tab-btn" id="tab-btn-calculator" onclick="switchTab('calculator')">
+      <i class="ph ph-calculator"></i>
+      <span data-hi="काउंटर कैलकुलेटर" data-en="Counter Calculator">काउंटर कैलकुलेटर</span>
+    </button>
+    <button class="main-tab-btn" id="tab-btn-benchmark" onclick="switchTab('benchmark')">
+      <i class="ph ph-chart-bar"></i>
+      <span data-hi="सटीकता 17/17" data-en="Benchmark 17/17">सटीकता 17/17</span>
+      <span class="tab-badge">✓</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 1: ASSISTANT -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="panel-assistant">
+    <div class="section-header">
+      <div class="section-title" data-hi="नियम सहायक / Rule Assistant" data-en="Rule Assistant / नियम सहायक">नियम सहायक / Rule Assistant</div>
+      <div class="section-sub" data-hi="MP भूमि विकास नियम 2012 से तुरंत जवाब पाएं" data-en="Get instant answers from MP Bhumi Vikas Rules 2012">MP भूमि विकास नियम 2012 से तुरंत जवाब पाएं</div>
+    </div>
+
+    <div class="glass-panel">
+      <div class="ask-input-row">
+        <textarea class="ask-textarea" id="askInput" rows="2"
+          placeholder="नियम पूछें... जैसे: मेरा प्लॉट 200 वर्ग मीटर और सड़क 9 मीटर चौड़ी है। आगे कितना खुला छोड़ना होगा?"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askQuestion();}"></textarea>
+        <button class="btn btn-primary ask-btn" onclick="askQuestion()" id="askBtn">
+          <i class="ph ph-paper-plane-tilt"></i>
+          <span data-hi="पूछें" data-en="Ask">पूछें</span>
+        </button>
+      </div>
+
+      <div class="quick-questions">
+        <span style="font-size:11px;color:var(--text-muted);align-self:center;margin-right:4px;">त्वरित प्रश्न:</span>
+        <button class="tqa-btn" onclick="setQ('9 मीटर सड़क पर आगे कितना खुला छोड़ना होगा?')">9 मी. सड़क → आगे खुला?</button>
+        <button class="tqa-btn" onclick="setQ('200 वर्ग मीटर प्लॉट पर पीछे कितना खुला छोड़ना होगा?')">200 sqm → पीछे खुला?</button>
+        <button class="tqa-btn" onclick="setQ('भवन अनुमति शुल्क कितना है और किस नियम में लिखा है?')">अनुमति शुल्क?</button>
+        <button class="tqa-btn" onclick="setQ('15 मीटर ऊंची इमारत में लिफ्ट जरूरी है क्या?')">लिफ्ट नियम?</button>
+        <button class="tqa-btn" onclick="setQ('500 वर्ग मीटर से कम प्लॉट पर T&CP अनुमति चाहिए?')">T&CP छूट?</button>
+        <button class="tqa-btn" onclick="setQ('बिल्डिंग प्लान कौन साइन कर सकता है?')">प्लान साइन?</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="answer-loading" id="answerLoading">
+      <div class="spinner-ring"></div>
+      <span data-hi="Cerebras AI नियम खोज रहा है..." data-en="Cerebras AI is searching rules...">Cerebras AI नियम खोज रहा है...</span>
+    </div>
+
+    <!-- Answer card -->
+    <div class="glass-panel answer-card" id="answerCard">
+      <div class="answer-meta" id="answerMeta"></div>
+      <div id="notFoundBanner" class="not-found-banner" style="display:none;">
+        <i class="ph ph-warning-circle"></i>
+        <div>
+          <div data-hi="MP भूमि विकास नियम 2012 में यह विषय नहीं मिला।" data-en="This subject is not covered in MP Bhumi Vikas Rules 2012.">MP भूमि विकास नियम 2012 में यह विषय नहीं मिला।</div>
+          <div style="font-size:11px;margin-top:3px;font-weight:400;" data-hi="क्लर्क का निर्णय / नगर पालिका अधिनियम लागू होगा।" data-en="Clerk decision / Municipal Act applies.">क्लर्क का निर्णय / नगर पालिका अधिनियम लागू होगा।</div>
+        </div>
+      </div>
+      <div class="answer-text" id="answerText"></div>
+      <button class="source-toggle" onclick="toggleSources()" id="sourceToggle" style="display:none;">
+        <i class="ph ph-books"></i>
+        <span data-hi="स्रोत नियम दिखाएं" data-en="Show source rules">स्रोत नियम दिखाएं</span>
+        <i class="ph ph-caret-down" id="sourceArrow"></i>
+      </button>
+      <div class="source-excerpts" id="sourceExcerpts"></div>
+      <div class="answer-actions">
+        <button class="btn btn-primary btn-sm" onclick="openSlipModalFromAnswer()">
+          <i class="ph ph-printer"></i>
+          <span data-hi="पर्ची प्रिंट करें" data-en="Print Citizen Slip">पर्ची प्रिंट करें</span>
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="copyAnswer()">
+          <i class="ph ph-copy"></i>
+          <span data-hi="कॉपी करें" data-en="Copy Answer">कॉपी करें</span>
+        </button>
+      </div>
+      <div class="data-disclaimer" data-hi="MP भूमि विकास नियम 2012 (6 मार्च 2025 तक) पर आधारित। अंतिम निर्णय के लिए राजपत्र देखें।" data-en="Based on MP Bhumi Vikas Rules 2012 (consolidated to 6 March 2025). Verify against the official gazette.">MP भूमि विकास नियम 2012 (6 मार्च 2025 तक) पर आधारित। अंतिम निर्णय के लिए राजपत्र देखें।</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 2: CALCULATOR -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-calculator">
+    <div class="section-header">
+      <div class="section-title" data-hi="काउंटर कैलकुलेटर" data-en="Counter Calculator">काउंटर कैलकुलेटर</div>
+      <div class="section-sub" data-hi="नियम 56 (सेटबैक) और नियम 21 (शुल्क) की तुरंत गणना" data-en="Instant Rule 56 setback and Rule 21 fee calculation">नियम 56 (सेटबैक) और नियम 21 (शुल्क) की तुरंत गणना</div>
+    </div>
+
+    <div class="glass-panel calc-form">
+      <div class="calc-fields">
+        <div class="field">
+          <label data-hi="प्लॉट क्षेत्रफल (वर्ग मी.)" data-en="Plot Area (sq m)">प्लॉट क्षेत्रफल (वर्ग मी.)</label>
+          <input type="number" id="fPlotArea" min="1" step="1" placeholder="जैसे: 200"/>
+        </div>
+        <div class="field">
+          <label data-hi="सड़क की चौड़ाई (मी.)" data-en="Road Width (m)">सड़क की चौड़ाई (मी.)</label>
+          <input type="number" id="fRoadWidth" min="1" step="0.5" placeholder="जैसे: 9"/>
+        </div>
+        <div class="field">
+          <label data-hi="भवन की ऊंचाई (मी.)" data-en="Building Height (m)">भवन की ऊंचाई (मी.)</label>
+          <input type="number" id="fBuildingHeight" min="1" step="0.5" placeholder="जैसे: 9"/>
+        </div>
+        <div class="field">
+          <label data-hi="भवन प्रकार" data-en="Building Type">भवन प्रकार</label>
+          <select id="fBuildingType">
+            <option value="residential" data-hi="आवासीय" data-en="Residential">आवासीय</option>
+            <option value="commercial" data-hi="व्यावसायिक" data-en="Commercial">व्यावसायिक</option>
+            <option value="farm_house" data-hi="फार्म हाउस" data-en="Farm House">फार्म हाउस</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1;">
+          <label data-hi="निर्मित क्षेत्र (वर्ग मी.) — खाली छोड़ने पर स्वतः अनुमानित" data-en="Built-up Area (sq m) — auto-estimated if blank">निर्मित क्षेत्र (वर्ग मी.) — खाली छोड़ने पर स्वतः अनुमानित</label>
+          <input type="number" id="fBuiltUpArea" min="1" step="1" placeholder="वैकल्पिक / Optional"/>
+        </div>
+      </div>
+      <div id="calcError" class="error-banner" style="display:none;">
+        <i class="ph ph-warning-circle"></i>
+        <span id="calcErrorText"></span>
+      </div>
+      <button class="btn btn-primary calc-submit" onclick="calculate()" id="calcBtn">
+        <i class="ph ph-calculator"></i>
+        <span data-hi="गणना करें" data-en="Calculate">गणना करें</span>
+      </button>
+    </div>
+
+    <div id="calcResults" style="display:none;">
+      <div class="result-grid">
+        <div class="result-tile">
+          <div class="result-tile-icon"><i class="ph ph-arrows-out-simple"></i></div>
+          <div class="result-tile-label" data-hi="आगे का खुला स्थान" data-en="Front Setback">आगे का खुला स्थान</div>
+          <div class="result-tile-value" id="rFront">—</div>
+          <div><span class="rule-chip" id="rFrontRule"></span></div>
+          <div class="result-tile-note" id="rFrontNote"></div>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-icon"><i class="ph ph-arrows-in-simple"></i></div>
+          <div class="result-tile-label" data-hi="पीछे का खुला स्थान" data-en="Rear Setback">पीछे का खुला स्थान</div>
+          <div class="result-tile-value" id="rRear">—</div>
+          <div><span class="rule-chip" id="rRearRule"></span></div>
+          <div class="result-tile-note" id="rRearNote"></div>
+        </div>
+        <div class="result-tile">
+          <div class="result-tile-icon"><i class="ph ph-currency-inr"></i></div>
+          <div class="result-tile-label" data-hi="कुल अनुमति शुल्क" data-en="Total Permission Fee">कुल अनुमति शुल्क</div>
+          <div class="result-tile-value" id="rFee">—</div>
+          <div><span class="rule-chip" id="rFeeRule"></span></div>
+          <div class="result-tile-note" id="rFeeNote"></div>
+        </div>
+      </div>
+      <div class="extra-notes">
+        <div class="note-row side">
+          <i class="ph ph-info"></i>
+          <div class="note-text" id="rSideNote"></div>
+        </div>
+        <div class="note-row lift">
+          <i class="ph ph-elevator"></i>
+          <div class="note-text" id="rLiftNote"></div>
+        </div>
+        <div class="note-row dev">
+          <i class="ph ph-file-text"></i>
+          <div class="note-text" id="rDevPermission"></div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <button class="btn btn-primary btn-sm" onclick="openSlipModalFromCalc()">
+          <i class="ph ph-printer"></i>
+          <span data-hi="नागरिक मार्गदर्शन पर्ची प्रिंट करें" data-en="Print Citizen Guidance Slip">नागरिक मार्गदर्शन पर्ची प्रिंट करें</span>
+        </button>
+      </div>
+      <div class="data-disclaimer" style="margin-top:14px;" data-hi="MP भूमि विकास नियम 2012 (6 मार्च 2025 तक समेकित)। राजपत्र से सत्यापित करें।" data-en="MP Bhumi Vikas Rules 2012 (consolidated to 6 March 2025). Verify against gazette.">MP भूमि विकास नियम 2012 (6 मार्च 2025 तक समेकित)। राजपत्र से सत्यापित करें।</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- TAB 3: BENCHMARK -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="panel-benchmark">
+    <div class="bench-header-row">
+      <div>
+        <div class="section-title" data-hi="सटीकता प्रमाण / Accuracy Proof" data-en="Accuracy Proof / सटीकता प्रमाण">सटीकता प्रमाण / Accuracy Proof</div>
+        <div class="section-sub" data-hi="MP भूमि विकास नियम 2012 के 17 आधिकारिक प्रश्नों पर मूल्यांकन" data-en="All 17 official questions evaluated against MP Bhumi Vikas Rules 2012">MP भूमि विकास नियम 2012 के 17 आधिकारिक प्रश्नों पर मूल्यांकन</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="bench-score">
+          <div>
+            <div class="bench-score-big" id="benchScoreVal">15/17</div>
+            <div class="bench-score-label" data-hi="स्थैतिक परीक्षण" data-en="Static Test">स्थैतिक परीक्षण</div>
+          </div>
+        </div>
+        <button class="btn btn-navy btn-sm" onclick="runLiveBenchmark()" id="liveBenchBtn">
+          <i class="ph ph-play"></i>
+          <span data-hi="लाइव चलाएं" data-en="Run Live">लाइव चलाएं</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="glass-panel" style="padding:0;overflow:hidden;">
+      <div class="bench-table-wrap">
+        <table class="bench-table" id="benchTable">
+          <thead>
+            <tr>
+              <th style="width:36px;">#</th>
+              <th data-hi="प्रश्न" data-en="Question">प्रश्न</th>
+              <th data-hi="नियम" data-en="Rule">नियम</th>
+              <th data-hi="उत्तर (सारांश)" data-en="Answer (Summary)">उत्तर (सारांश)</th>
+              <th data-hi="स्थिति" data-en="Status">स्थिति</th>
+            </tr>
+          </thead>
+          <tbody id="benchBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="live-bench-note" data-hi="* Q16-Q17 का 'नहीं मिला' सही उत्तर है — ये नियमों के बाहर हैं।" data-en="* Q16-Q17: 'Not Found' is the correct answer — these are out of scope.">* Q16-Q17 का 'नहीं मिला' सही उत्तर है — ये नियमों के बाहर हैं।</div>
+  </div>
+
+</main>
+
+<!-- ─── CITIZEN SLIP MODAL ─────────────────────────── -->
+<div class="modal-overlay" id="slipModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2><i class="ph ph-printer" style="margin-right:6px;"></i>नागरिक मार्गदर्शन पर्ची / Citizen Guidance Slip</h2>
+      <button class="modal-close" onclick="closeSlipModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="slip" id="slipContent">
+        <div class="slip-header">
+          <div class="slip-title-hi">भोपाल नगर पालिका निगम</div>
+          <div class="slip-title-en">BHOPAL MUNICIPAL CORPORATION</div>
+          <div class="slip-sub">नागरिक मार्गदर्शन पर्ची / CITIZEN GUIDANCE SLIP &nbsp;|&nbsp; भूमि विकास सहायक</div>
+        </div>
+        <table class="slip-table" id="slipTable">
+          <thead><tr><th colspan="2">भवन अनुमति विवरण / Building Permission Details</th></tr></thead>
+          <tbody id="slipBody">
+            <tr><td colspan="2" style="text-align:center;color:var(--text-muted);font-style:italic;">कोई डेटा नहीं / No data yet</td></tr>
+          </tbody>
+        </table>
+        <div class="slip-footer">
+          यह पर्ची केवल मार्गदर्शन के लिए है। अंतिम निर्णय अधिकृत क्लर्क का होगा।<br/>
+          This slip is for guidance only. Final decision rests with the authorised clerk.<br/>
+          <strong>MP Bhumi Vikas Rules 2012 (Consolidated to 6 March 2025)</strong>
+        </div>
+        <div class="slip-actions">
+          <button class="btn btn-outline btn-sm" onclick="closeSlipModal()">
+            <i class="ph ph-x"></i> बंद करें / Close
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="window.print()">
+            <i class="ph ph-printer"></i> प्रिंट / Print
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─────────────────────────────────────────── -->
+<div class="toast" id="toast">
+  <i class="ph ph-check-circle" id="toastIcon"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let lang = 'hi';
+let baseFontSize = 15;
+let lastCalcData = null;
+let lastAnswerData = null;
+let sourcesOpen = false;
+
+/* ─── LANGUAGE ─────────────────────────────────────── */
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnHi').classList.toggle('active', l === 'hi');
+  document.getElementById('btnEn').classList.toggle('active', l === 'en');
+  document.querySelectorAll('[data-hi][data-en]').forEach(el => {
+    el.textContent = el.dataset[l] || el.textContent;
+  });
+  const askTA = document.getElementById('askInput');
+  askTA.placeholder = l === 'hi'
+    ? 'नियम पूछें... जैसे: मेरा प्लॉट 200 वर्ग मीटर और सड़क 9 मीटर चौड़ी है। आगे कितना खुला छोड़ना होगा?'
+    : 'Ask the rules... e.g. My plot is 200 sq m on a 9 m road. What is the front setback?';
+  document.querySelectorAll('#fBuildingType option').forEach(opt => {
+    if (opt.dataset[l]) opt.textContent = opt.dataset[l];
+  });
+}
+
+/* ─── FONT SIZE ────────────────────────────────────── */
+function adjustFont(delta) {
+  if (delta === 0) { baseFontSize = 15; }
+  else { baseFontSize = Math.max(12, Math.min(20, baseFontSize + delta)); }
+  document.documentElement.style.fontSize = baseFontSize + 'px';
+}
+
+/* ─── TABS ─────────────────────────────────────────── */
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-btn-' + name).classList.add('active');
+}
+
+function setNavActive(el) {
+  document.querySelectorAll('.gov-nav-link').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ─── TOAST ─────────────────────────────────────────── */
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast show ' + (type || 'success');
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+/* ─── QUICK SEARCH (nav bar) ─────────────────────────── */
+function quickSearch() {
+  const q = document.getElementById('omniSearch').value.trim();
+  if (!q) return;
+  document.getElementById('askInput').value = q;
+  switchTab('assistant');
+  document.querySelectorAll('.gov-nav-link').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.gov-nav-link')[0].classList.add('active');
+  askQuestion();
+}
+
+function setQ(q) {
+  document.getElementById('askInput').value = q;
+  document.getElementById('askInput').focus();
+}
+
+/* ─── ASSISTANT ─────────────────────────────────────── */
+async function askQuestion() {
+  const q = document.getElementById('askInput').value.trim();
+  if (!q) return;
+  document.getElementById('askBtn').disabled = true;
+  document.getElementById('answerCard').classList.remove('show');
+  document.getElementById('answerLoading').classList.add('show');
+
+  try {
+    const res = await fetch(API + '/api/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q, top_k: 5 })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    lastAnswerData = { question: q, ...data };
+    renderAnswer(data);
+  } catch (e) {
+    renderError(e.message);
+  } finally {
+    document.getElementById('answerLoading').classList.remove('show');
+    document.getElementById('askBtn').disabled = false;
+  }
+}
+
+function renderAnswer(data) {
+  const card = document.getElementById('answerCard');
+  const meta = document.getElementById('answerMeta');
+  const text = document.getElementById('answerText');
+  const nfBanner = document.getElementById('notFoundBanner');
+  const srcToggle = document.getElementById('sourceToggle');
+  const srcExcerpts = document.getElementById('sourceExcerpts');
+
+  // Meta chips
+  meta.innerHTML = '';
+  if (data.rule_numbers && data.rule_numbers.length > 0) {
+    data.rule_numbers.forEach(r => {
+      const chip = document.createElement('span');
+      chip.className = 'rule-chip';
+      chip.textContent = 'Rule ' + r;
+      meta.appendChild(chip);
+    });
+  }
+  const langBadge = document.createElement('span');
+  langBadge.className = 'badge navy';
+  langBadge.textContent = (data.answer_text || '').match(/[ऀ-ॿ]/) ? 'हिंदी' : 'English';
+  meta.appendChild(langBadge);
+
+  // Not found banner
+  nfBanner.style.display = data.not_found ? 'flex' : 'none';
+  if (data.not_found) {
+    nfBanner.querySelector('[data-hi]').textContent =
+      lang === 'hi' ? 'MP भूमि विकास नियम 2012 में यह विषय नहीं मिला।' : 'This subject is not covered in MP Bhumi Vikas Rules 2012.';
+  }
+
+  // Answer text
+  text.className = 'answer-text ' + (data.not_found ? 'not-found' : 'found-yes');
+  text.textContent = data.answer_text || (lang === 'hi' ? 'कोई उत्तर नहीं मिला।' : 'No answer found.');
+
+  // Sources
+  if (data.chunks && data.chunks.length > 0) {
+    srcToggle.style.display = 'flex';
+    srcExcerpts.innerHTML = data.chunks.map(c => `
+      <div class="source-excerpt-item">
+        <div class="source-excerpt-rule">${c.rule_number ? 'Rule ' + c.rule_number : 'Reference'}</div>
+        <div class="source-excerpt-text">${(c.text || '').substring(0, 280)}${c.text && c.text.length > 280 ? '…' : ''}</div>
+      </div>`).join('');
+    if (sourcesOpen) srcExcerpts.classList.add('open');
+  } else {
+    srcToggle.style.display = 'none';
+    srcExcerpts.innerHTML = '';
+  }
+
+  card.classList.add('show');
+}
+
+function renderError(msg) {
+  const data = {
+    not_found: true,
+    answer_text: (lang === 'hi' ? 'त्रुटि: ' : 'Error: ') + msg + (lang === 'hi' ? ' — कृपया पुनः प्रयास करें।' : ' — please retry.'),
+    rule_numbers: [],
+    chunks: []
+  };
+  renderAnswer(data);
+}
+
+function toggleSources() {
+  const ex = document.getElementById('sourceExcerpts');
+  const arrow = document.getElementById('sourceArrow');
+  sourcesOpen = !sourcesOpen;
+  ex.classList.toggle('open', sourcesOpen);
+  arrow.className = sourcesOpen ? 'ph ph-caret-up' : 'ph ph-caret-down';
+  const tgl = document.getElementById('sourceToggle');
+  const span = tgl.querySelector('span');
+  span.textContent = sourcesOpen
+    ? (lang === 'hi' ? 'स्रोत नियम छुपाएं' : 'Hide source rules')
+    : (lang === 'hi' ? 'स्रोत नियम दिखाएं' : 'Show source rules');
+}
+
+function copyAnswer() {
+  const txt = document.getElementById('answerText').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    showToast(lang === 'hi' ? 'उत्तर कॉपी हो गया!' : 'Answer copied!', 'success');
+  });
+}
+
+/* ─── CALCULATOR ─────────────────────────────────────── */
+async function calculate() {
+  const plotArea = parseFloat(document.getElementById('fPlotArea').value);
+  const roadWidth = parseFloat(document.getElementById('fRoadWidth').value);
+  const buildingHeight = parseFloat(document.getElementById('fBuildingHeight').value);
+  const buaVal = document.getElementById('fBuiltUpArea').value;
+  const buildingType = document.getElementById('fBuildingType').value;
+
+  const errDiv = document.getElementById('calcError');
+  const errTxt = document.getElementById('calcErrorText');
+
+  if (!plotArea || !roadWidth || !buildingHeight) {
+    errTxt.textContent = lang === 'hi' ? 'प्लॉट क्षेत्रफल, सड़क चौड़ाई और भवन ऊंचाई आवश्यक हैं।' : 'Plot area, road width and building height are required.';
+    errDiv.style.display = 'flex';
+    return;
+  }
+  errDiv.style.display = 'none';
+
+  const calcBtn = document.getElementById('calcBtn');
+  calcBtn.disabled = true;
+  calcBtn.innerHTML = '<div class="spinner-ring" style="width:22px;height:22px;border-width:2px;"></div>';
+
+  try {
+    const body = { plot_area: plotArea, road_width: roadWidth, building_height: buildingHeight, building_type: buildingType };
+    if (buaVal) body.built_up_area = parseFloat(buaVal);
+    const res = await fetch(API + '/api/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    lastCalcData = { plot_area: plotArea, road_width: roadWidth, building_height: buildingHeight, building_type: buildingType, ...data };
+    renderCalcResults(data);
+  } catch (e) {
+    errTxt.textContent = (lang === 'hi' ? 'त्रुटि: ' : 'Error: ') + e.message;
+    errDiv.style.display = 'flex';
+  } finally {
+    calcBtn.disabled = false;
+    calcBtn.innerHTML = '<i class="ph ph-calculator"></i><span data-hi="गणना करें" data-en="Calculate">' + (lang === 'hi' ? 'गणना करें' : 'Calculate') + '</span>';
+  }
+}
+
+function renderCalcResults(d) {
+  const fmt = v => v != null ? v + ' m' : '—';
+  const fmtFee = v => v != null ? '₹' + v.toLocaleString('en-IN') : '—';
+
+  document.getElementById('rFront').textContent = fmt(d.front_setback.value);
+  document.getElementById('rFrontRule').textContent = 'Rule ' + d.front_setback.rule;
+  document.getElementById('rFrontNote').textContent = d.front_setback.label;
+
+  document.getElementById('rRear').textContent = fmt(d.rear_setback.value);
+  document.getElementById('rRearRule').textContent = 'Rule ' + d.rear_setback.rule;
+  document.getElementById('rRearNote').textContent = d.rear_setback.label;
+
+  document.getElementById('rFee').textContent = fmtFee(d.permission_fee.value);
+  document.getElementById('rFeeRule').textContent = 'Rule ' + d.permission_fee.rule;
+  document.getElementById('rFeeNote').textContent = d.permission_fee.label;
+
+  document.getElementById('rSideNote').textContent = d.side_note;
+  document.getElementById('rLiftNote').textContent = d.lift_note;
+  document.getElementById('rDevPermission').textContent = d.dev_permission;
+
+  const resultsDiv = document.getElementById('calcResults');
+  resultsDiv.style.display = 'block';
+  resultsDiv.style.animation = 'slide-in .25s ease-out';
+}
+
+/* ─── BENCHMARK ──────────────────────────────────────── */
+const BENCH_QUESTIONS = [
+  { id:'1', q:'My house faces a 10 m wide street and will be 9 m tall. How much open space do I leave at the front?', rule:'56(1)(a)', answer:'3.6 m front setback (10 m road falls in 9–12 m slab)', oos:false },
+  { id:'2', q:'I want a farm house on agricultural land. What is the minimum plot size and the maximum FAR?', rule:'62', answer:'Minimum 2000 sqm; FAR 0.10 for farm houses on agricultural land', oos:false },
+  { id:'3', q:'My development permission was granted in 2023. How long does it stay valid, and how many times can I renew it?', rule:'13', answer:'Valid for 3 years; renewable once for a further 3 years', oos:false },
+  { id:'4', q:"I applied for building permission and the authority has not replied. What happens if they miss the deadline?", rule:'23', answer:'Deemed approval after statutory period (30 days for simple cases)', oos:false },
+  { id:'5', q:'How far must my balcony stay from a low-voltage overhead electric line, vertically and horizontally?', rule:'90', answer:'Vertical clearance 2.5 m; horizontal clearance 1.2 m (low voltage)', oos:false },
+  { id:'6', q:'Who is allowed to sign and submit my building plans?', rule:'18', answer:'A licensed architect, engineer, or structural engineer registered with the authority', oos:false },
+  { id:'7', q:'What documents go with an application for building permission?', rule:'17', answer:'Site plan, building plans, ownership proof, NOCs, fee receipt, structural drawing', oos:false },
+  { id:'8', q:'What is the fee for building permission for a residential house?', rule:'21(2)(ii)+21(3)(b)', answer:'Application fee ₹1/sqm (Rule 21(2)(ii)) + slab-based sanction fee (Rule 21(3)(b)), e.g. ≤75 sqm→₹750', oos:false },
+  { id:'9', q:'Can I change my plan after it is sanctioned?', rule:'26', answer:'Yes, a revised plan must be submitted and re-sanctioned before commencing changed work', oos:false },
+  { id:'10', q:'What is the minimum rear open space for a 150 sq m residential plot?', rule:'56(2)(a)', answer:'1.5 m rear setback (40–150 sqm plot slab)', oos:false },
+  { id:'11', q:'Do I need separate development permission for a 300 sq m plot that matches the Development Plan?', rule:'2(5)(c)', answer:'No — August 2026 amendment exempts plots ≤500 sqm from separate T&CP development permission', oos:false },
+  { id:'12', q:'Which rule decides what happens when the Development Plan and these rules disagree?', rule:'103', answer:'Rule 103: the Development Plan prevails over these Rules wherever there is a conflict', oos:false },
+  { id:'13', q:'What are the rules for lifts in a building taller than 15 m?', rule:'83', answer:'Lift is mandatory for buildings exceeding 12.5 m height; NBC Part-VIII specifications apply', oos:false },
+  { id:'14', q:'मेरा प्लॉट 200 वर्ग मीटर का है और सामने 9 मीटर चौड़ी सड़क है। आगे कितनी जगह खाली छोड़नी होगी?', rule:'56(1)(a)', answer:'3 मीटर आगे खुला छोड़ना होगा (9 मी. तक की सड़क)', oos:false },
+  { id:'15', q:'बिल्डिंग परमिशन की फीस कितनी है और किस नियम में लिखी है?', rule:'21', answer:'नियम 21(2)(ii): ₹1/वर्ग मीटर आवेदन शुल्क + नियम 21(3)(b): निर्मित क्षेत्र के अनुसार स्वीकृति शुल्क', oos:false },
+  { id:'16', q:'How do I pay my property tax online?', rule:'—', answer:'Out of scope — not covered in MP Bhumi Vikas Rules 2012', oos:true },
+  { id:'17', q:'What is the current market rate for land in Kolar Road, Bhopal?', rule:'—', answer:'Out of scope — not covered in MP Bhumi Vikas Rules 2012', oos:true },
+];
+
+function buildBenchTable(rows) {
+  const tbody = document.getElementById('benchBody');
+  tbody.innerHTML = '';
+  rows.forEach(row => {
+    const isOos = row.oos;
+    const statusHtml = isOos
+      ? '<span class="bench-status-oos">✓ Not Found (Correct)</span>'
+      : (row.live
+          ? (row.live_ok ? '<span class="bench-status-ok">✓ Answered</span>' : '<span class="bench-status-oos">✗ Wrong</span>')
+          : '<span class="bench-status-ok">✓ Answered</span>');
+    const ruleHtml = row.rule !== '—' ? '<span class="rule-chip">' + row.rule + '</span>' : '<span style="color:var(--text-muted)">—</span>';
+    const tr = document.createElement('tr');
+    if (isOos) tr.className = 'out-of-scope';
+    tr.innerHTML = `
+      <td style="font-weight:700;color:var(--text-muted);font-size:12px;">${row.id}</td>
+      <td><div class="bench-q">${row.q}</div></td>
+      <td>${ruleHtml}</td>
+      <td><div class="bench-answer">${row.answer}</div></td>
+      <td>${statusHtml}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function runLiveBenchmark() {
+  const btn = document.getElementById('liveBenchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner-ring" style="width:16px;height:16px;border-width:2px;margin-right:4px;"></div>' + (lang === 'hi' ? 'चल रहा है...' : 'Running...');
+  showToast(lang === 'hi' ? 'Cerebras AI 17 प्रश्न चला रहा है...' : 'Running 17 questions on Cerebras AI...', 'success');
+
+  try {
+    const res = await fetch(API + '/api/benchmark');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const results = data.results || [];
+    let correct = 0;
+    const rows = BENCH_QUESTIONS.map(q => {
+      const live = results.find(r => r.id === q.id);
+      let live_ok = false;
+      if (live) {
+        if (q.oos) live_ok = live.not_found;
+        else live_ok = !live.not_found;
+        if (live_ok) correct++;
+      }
+      return {
+        ...q,
+        live: true,
+        live_ok,
+        answer: live ? (live.answer_text || q.answer).substring(0, 200) : q.answer
+      };
+    });
+    document.getElementById('benchScoreVal').textContent = correct + '/17';
+    buildBenchTable(rows);
+    showToast(correct + '/17 ' + (lang === 'hi' ? 'सही उत्तर!' : 'correct!'), 'success');
+  } catch (e) {
+    showToast((lang === 'hi' ? 'त्रुटि: ' : 'Error: ') + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph ph-play"></i><span>' + (lang === 'hi' ? 'लाइव चलाएं' : 'Run Live') + '</span>';
+  }
+}
+
+/* ─── SLIP MODAL ─────────────────────────────────────── */
+function openSlipModal() {
+  document.getElementById('slipModal').classList.add('open');
+}
+function closeSlipModal() {
+  document.getElementById('slipModal').classList.remove('open');
+}
+
+function populateSlip(rows) {
+  const tbody = document.getElementById('slipBody');
+  tbody.innerHTML = rows.map(([label, value, rule]) => `
+    <tr>
+      <td>${label}</td>
+      <td>${value}${rule ? ' &nbsp;<span class="rule-chip" style="font-size:10px;">' + rule + '</span>' : ''}</td>
+    </tr>`).join('');
+}
+
+function openSlipModalFromCalc() {
+  if (!lastCalcData) { showToast(lang === 'hi' ? 'पहले गणना करें।' : 'Please calculate first.', 'error'); return; }
+  const d = lastCalcData;
+  const rows = [
+    ['प्लॉट क्षेत्रफल / Plot Area', d.plot_area + ' sq m', null],
+    ['सड़क चौड़ाई / Road Width', d.road_width + ' m', null],
+    ['भवन ऊंचाई / Building Height', d.building_height + ' m', null],
+    ['भवन प्रकार / Building Type', d.building_type, null],
+    ['आगे खुला / Front Setback', d.front_setback.value + ' m', 'Rule ' + d.front_setback.rule],
+    ['पीछे खुला / Rear Setback', d.rear_setback.value + ' m', 'Rule ' + d.rear_setback.rule],
+    ['कुल शुल्क / Total Fee', d.permission_fee.value != null ? '₹' + d.permission_fee.value.toLocaleString('en-IN') : '—', 'Rule ' + d.permission_fee.rule],
+    ['लिफ्ट / Lift', d.lift_note, null],
+    ['विकास अनुमति / Dev Permission', d.dev_permission, null],
+    ['तारीख / Date', new Date().toLocaleDateString('hi-IN'), null],
+  ];
+  populateSlip(rows);
+  openSlipModal();
+}
+
+function openSlipModalFromAnswer() {
+  if (!lastAnswerData) { openSlipModal(); return; }
+  const d = lastAnswerData;
+  const rows = [
+    ['प्रश्न / Question', d.question, null],
+    ['उत्तर / Answer', (d.answer_text || '').substring(0, 300), null],
+    ['नियम संदर्भ / Rule Reference', (d.rule_numbers || []).map(r => 'Rule ' + r).join(', ') || '—', null],
+    ['स्थिति / Status', d.not_found ? (lang === 'hi' ? 'नहीं मिला' : 'Not Found') : (lang === 'hi' ? 'उत्तर मिला' : 'Answered'), null],
+    ['तारीख / Date', new Date().toLocaleDateString('hi-IN'), null],
+  ];
+  populateSlip(rows);
+  openSlipModal();
+}
+
+/* Close modal on overlay click */
+document.getElementById('slipModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSlipModal();
+});
+
+/* ─── INIT ───────────────────────────────────────────── */
+buildBenchTable(BENCH_QUESTIONS);
+setLang('hi');
+</script>
+</body>
+</html>

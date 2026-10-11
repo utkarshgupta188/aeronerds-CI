@@ -3,6 +3,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
@@ -22,6 +23,13 @@ app.add_middleware(
 )
 
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bhumi_vikas_rules.jsonl")
+TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+def root():
+    with open(os.path.join(TEMPLATES_DIR, "index.html"), encoding="utf-8") as f:
+        return f.read()
 
 _rules = None
 _vec = None
@@ -39,9 +47,10 @@ class AskRequest(BaseModel):
 
 
 class CalcRequest(BaseModel):
-    plot_area: float          # sq m
-    road_width: float         # m
-    building_height: float    # m
+    plot_area: float                    # sq m
+    road_width: float                   # m
+    building_height: float              # m
+    built_up_area: Optional[float] = None  # sq m; estimated as plot_area*1.25 if omitted
     building_type: str = "residential"  # residential | commercial | farm_house
 
 
@@ -106,44 +115,84 @@ def _rear_setback(plot_area: float) -> dict:
     """Rule 56(2)(a) — residential buildings up to 12.5m."""
     if plot_area <= 40:
         return {"value": 0.0, "rule": "56(2)(a)", "label": "≤40 sq m plot"}
-    elif plot_area <= 200:
-        return {"value": 1.5, "rule": "56(2)(a)", "label": "40–200 sq m plot"}
-    elif plot_area <= 500:
-        return {"value": 2.0, "rule": "56(2)(a)", "label": "200–500 sq m plot"}
+    elif plot_area <= 150:
+        return {"value": 1.5, "rule": "56(2)(a)", "label": "40–150 sq m plot"}
+    elif plot_area <= 225:
+        return {"value": 2.5, "rule": "56(2)(a)", "label": "150–225 sq m plot"}
     else:
-        return {"value": 3.0, "rule": "56(2)(a)", "label": ">500 sq m plot"}
+        return {"value": 3.0, "rule": "56(2)(a)", "label": ">225 sq m plot"}
 
 
-def _permission_fee(plot_area: float, building_type: str) -> dict:
-    """Rule 21(b) — permission fee for residential use (approximate from table)."""
+def _permission_fee(built_up_area: float, building_type: str) -> dict:
+    """Rule 21(3)(b) Table Item 1 — permission fee based on built-up area slabs."""
     if building_type == "farm_house":
-        return {"value": None, "rule": "21", "label": "See Rule 21 Schedule for farm house fees"}
-    # Residential fee per Rule 21(b) Item 1 (approximate)
-    if plot_area <= 75:
-        fee = 1500
-    elif plot_area <= 200:
-        fee = 3000
-    elif plot_area <= 500:
-        fee = 6000
+        return {"value": None, "rule": "21", "label": "See Rule 21 schedule for farm house fees"}
+    multiplier = 1.5 if building_type == "commercial" else 1.0
+    # Rule 21(3)(b) Item 1 slabs (residential); commercial adds 50%
+    if built_up_area <= 75:
+        base = 750
+    elif built_up_area <= 125:
+        base = 1250
+    elif built_up_area <= 200:
+        base = 2000
+    elif built_up_area <= 300:
+        base = 3000
+    elif built_up_area <= 400:
+        base = 4000
+    elif built_up_area <= 600:
+        base = 6000
+    elif built_up_area <= 750:
+        base = 7500
+    elif built_up_area <= 1000:
+        base = 10000
+    elif built_up_area <= 1250:
+        base = 12500
+    elif built_up_area <= 1500:
+        base = 15000
+    elif built_up_area <= 2000:
+        base = 20000
+    elif built_up_area <= 2500:
+        base = 25000
     else:
-        fee = 10000
-    return {"value": fee, "rule": "21(b)", "label": f"Residential, {plot_area:.0f} sq m"}
+        base = 50000
+    app_fee = round(built_up_area * 1.0)  # Rule 21(2)(ii): ₹1/sq m application fee
+    sanction_fee = round(base * multiplier)
+    total = app_fee + sanction_fee
+    label = f"Built-up {built_up_area:.0f} sq m · App fee ₹{app_fee:,} + Sanction ₹{sanction_fee:,}"
+    return {"value": total, "app_fee": app_fee, "sanction_fee": sanction_fee, "rule": "21(2)(ii)+21(3)(b)", "label": label}
 
 
 @app.post("/api/calculate")
 def calculate(req: CalcRequest):
     front = _front_setback(req.road_width)
     rear = _rear_setback(req.plot_area)
-    fee = _permission_fee(req.plot_area, req.building_type)
+    # Estimate built-up area as plot_area × FAR 1.25 (residential default) if not provided
+    bua = req.built_up_area if req.built_up_area and req.built_up_area > 0 else req.plot_area * 1.25
+    fee = _permission_fee(bua, req.building_type)
 
-    side_note = "Rule 56(3): side open space depends on frontage and building height — see table in Rule 56."
+    lift_required = req.building_height > 12.5
+    lift_note = (
+        "Lift mandatory — Rule 83 (height > 12.5 m, NBC Part-VIII applies)"
+        if lift_required else
+        "Lift not required — Rule 83 (height ≤ 12.5 m)"
+    )
+
+    dev_permission = (
+        "No separate T&CP development permission needed — Aug 2026 amendment to Rule 2(5)(c) exempts plots ≤ 500 sq m"
+        if req.plot_area <= 500 else
+        "T&CP development permission required before building sanction (Rule 12, plot > 500 sq m)"
+    )
+
+    side_note = "Rule 56(3): detached building — 3 m both sides; semi-detached — 3 m one side; row-type — nil."
 
     return {
         "front_setback": front,
         "rear_setback": rear,
         "permission_fee": fee,
+        "lift_note": lift_note,
+        "dev_permission": dev_permission,
         "side_note": side_note,
-        "data_note": "Consolidated to 6 March 2025. Verify table values against the official PDF.",
+        "data_note": "Consolidated to 6 March 2025. Verify against the official gazette.",
     }
 
 
