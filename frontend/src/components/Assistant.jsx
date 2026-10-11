@@ -3,6 +3,7 @@ import { collection, onSnapshot, orderBy, query } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { apiAsk } from '../api.js'
 import AnswerCard from './AnswerCard.jsx'
+import DocUpload from './DocUpload.jsx'
 import './Assistant.css'
 
 const EXAMPLES_EN = [
@@ -25,6 +26,7 @@ export default function Assistant({ lang, t, initialQuestion = '' }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [amendments, setAmendments] = useState([])
+  const [uploadedDocs, setUploadedDocs] = useState([])
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -41,6 +43,8 @@ export default function Assistant({ lang, t, initialQuestion = '' }) {
 
   const examples = lang === 'hi' ? EXAMPLES_HI : EXAMPLES_EN
 
+  const docIds = uploadedDocs.map(d => d.doc_id)
+
   async function handleSubmit(e) {
     e?.preventDefault()
     const q = question.trim()
@@ -49,7 +53,7 @@ export default function Assistant({ lang, t, initialQuestion = '' }) {
     setResult(null)
     setError(null)
     try {
-      const data = await apiAsk(q, 5, amendments)
+      const data = await apiAsk(q, 5, amendments, docIds)
       setResult(data)
     } catch (err) {
       setError(err.message)
@@ -106,6 +110,13 @@ export default function Assistant({ lang, t, initialQuestion = '' }) {
           {t('Ask', 'पूछें')}
         </button>
       </form>
+
+      <DocUpload
+        docs={uploadedDocs}
+        onAdd={d => setUploadedDocs(prev => [...prev, d])}
+        onRemove={id => setUploadedDocs(prev => prev.filter(d => d.doc_id !== id))}
+        t={t}
+      />
 
       <div className="examples-row">
         <span className="examples-label">{t('Try:', 'उदाहरण:')}</span>

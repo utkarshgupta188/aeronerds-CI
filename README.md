@@ -13,7 +13,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 - Raunak Ray
 - Abhirag Mishra
 
-**UI:** the React app in `frontend/` (assistant, calculator, latest updates, clerk login, amendment manager). The FastAPI backend serves only `/api/*`.
+**UI:** the React app in `frontend/` (assistant, calculator, document upload, latest updates, clerk login, amendment manager). The FastAPI backend serves only `/api/*`.
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
@@ -109,6 +109,9 @@ All arithmetic is in code, not in the language model.
 ### Citizen Guidance Slip (नागरिक पर्ची)
 Print a slip for the citizen from either the calculator or the assistant result.
 
+### Document Upload (दस्तावेज़ अपलोड)
+Upload a PDF or TXT file (gazette notification, new draft rule, site report) directly from the Rules Assistant panel. The uploaded document is chunked (400 chars, 50-char overlap) and searched via TF-IDF alongside the base JSONL rules whenever the clerk asks a question. The LLM receives both the retrieved base-rule chunks and the top-3 uploaded-doc chunks in the same prompt and attributes them separately in the answer. Uploaded docs are shown as chips with filename, size, and chunk count; each chip has an × to remove it. Documents are session-scoped (in-memory on the backend; a server restart clears them — by design, no persistent storage of uploaded content).
+
 ### Clerk login and Amendments (संशोधन)
 Clerks sign in with Firebase Authentication (email/password). In the Manage Amendments tab, which exists only after sign-in, they pick a rule from the list, then record the effective date, title and text. Each amendment has an on/off switch. Amendments are stored in Firestore and sync live. Active amendments are sent with every question and the model is told they take precedence over the base rules. Citizens see them read-only in a Latest Updates tab that appears only when at least one amendment is active. Only signed-in clerks can write (Firestore security rules).
 
@@ -122,6 +125,7 @@ Run `python eval.py` to send the 17 sample questions to the model (needs `CEREBR
 
 ## What works
 
+- Document upload: clerk uploads PDF/TXT gazette or rule draft; answered alongside base rules
 - English and Hindi questions answered with rule number + source text shown
 - Fee questions (Rule 21), setback questions (Rule 56), farm house (Rule 17), permission validity (Rule 23), electric line clearances (Rule 52), lifts (Rule 83), Development Plan precedence (Rule 103)
 - Correctly says "Not found" for out-of-scope questions — never guesses
@@ -173,9 +177,12 @@ Run `python eval.py` to send the 17 sample questions to the model (needs `CEREBR
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `POST /api/ask` | POST | `{question, top_k, amendments?}` → answer with rule numbers and source text |
+| `POST /api/ask` | POST | `{question, top_k, amendments?, doc_ids?}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
 | `GET /api/rules` | GET | Lists all rule numbers and titles |
+| `POST /api/upload` | POST | Upload a PDF or TXT document; returns `{doc_id, name, chunks, size_kb}` |
+| `GET /api/uploads` | GET | Lists all uploaded documents for this server session |
+| `DELETE /api/uploads/{doc_id}` | DELETE | Removes an uploaded document |
 
 ---
 

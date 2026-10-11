@@ -180,7 +180,7 @@ def compare_amendments(question: str, pairs: List[dict], lang: str) -> List[dict
     return checks
 
 
-def answer(question: str, chunks: List[dict], amendments: List[dict] = None) -> dict:
+def answer(question: str, chunks: List[dict], amendments: List[dict] = None, doc_chunks: List[dict] = None) -> dict:
     lang = _detect_language(question)
     if lang == "hi":
         system = _SYSTEM_HI
@@ -192,12 +192,23 @@ def answer(question: str, chunks: List[dict], amendments: List[dict] = None) -> 
     rule_text = "\n\n".join(
         f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
     )
+    doc_text = ""
+    if doc_chunks:
+        doc_sections = "\n\n".join(
+            f"[Uploaded document — {c.get('title', 'Document')}]:\n{c['text']}"
+            for c in doc_chunks
+        )
+        doc_text = (
+            "\n\nUPLOADED REFERENCE DOCUMENTS (use these alongside the rules above; "
+            "attribute answers from uploaded docs separately from base rules):\n"
+            + doc_sections
+        )
     amend_text = ""
     if amendments:
         amend_text = "\n\nLATEST AMENDMENTS (take precedence over base rules):\n" + "\n".join(
             _format_amendment(a) for a in amendments
         )
-    user_msg = f"Relevant rules:\n{rule_text}{amend_text}\n\nQuestion: {question}"
+    user_msg = f"Relevant rules:\n{rule_text}{doc_text}{amend_text}\n\nQuestion: {question}"
 
     try:
         client = Cerebras(api_key=os.environ["CEREBRAS_API_KEY"])
@@ -256,9 +267,17 @@ def answer(question: str, chunks: List[dict], amendments: List[dict] = None) -> 
         {
             "rule": c["rule"], "title": c["title"], "text": c["text"],
             "page_start": c.get("page_start"), "page_end": c.get("page_end"),
+            "source_type": c.get("source_type", "base_rules"),
         }
         for c in chunks
     ]
+    if doc_chunks:
+        for dc in doc_chunks:
+            chunk_objects.append({
+                "rule": dc.get("rule", "—"), "title": dc.get("title", "Uploaded document"),
+                "text": dc["text"], "page_start": None, "page_end": None,
+                "source_type": "uploaded_doc",
+            })
 
     answer_text = (
         "Not found in the rules (as consolidated to 6 March 2025)."

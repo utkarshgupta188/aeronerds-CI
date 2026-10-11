@@ -1,7 +1,7 @@
-import sys, os
+import sys, os, io, time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from src.embedder import embed_rules, search
+from src.embedder import embed_rules, search, search_doc_chunks
 from src.answerer import answer as llm_answer
 
 app = FastAPI(title="Bhumi Vikas Sahayak API")
@@ -25,6 +25,9 @@ DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 _rules = None
 _vec = None
+_uploaded_docs: dict[int, dict] = {}
+_next_doc_id = 0
+
 
 def get_index():
     global _rules, _vec
@@ -44,6 +47,7 @@ class AskRequest(BaseModel):
     question: str
     top_k: int = 5
     amendments: list[Amendment] = []
+    doc_ids: list[int] = []
 
 
 class CalcRequest(BaseModel):
@@ -64,8 +68,85 @@ def list_rules():
 def ask(req: AskRequest):
     rules, vec = get_index()
     chunks = search(req.question, rules, vec, top_k=req.top_k)
-    result = llm_answer(req.question, chunks, amendments=[a.model_dump() for a in req.amendments])
+
+    doc_chunks = []
+    for doc_id in req.doc_ids:
+        doc = _uploaded_docs.get(doc_id)
+        if doc:
+            for hit in search_doc_chunks(req.question, doc["chunks"], top_k=3):
+                doc_chunks.append({
+                    "rule": f"doc:{doc_id}",
+                    "title": doc["name"],
+                    "text": hit["text"],
+                    "source_type": "uploaded_doc",
+                })
+
+    result = llm_answer(
+        req.question,
+        chunks,
+        amendments=[a.model_dump() for a in req.amendments],
+        doc_chunks=doc_chunks or None,
+    )
     return result
+
+
+@app.post("/api/upload")
+async def upload_document(file: UploadFile = File(...)):
+    global _next_doc_id
+    content = await file.read()
+    filename = file.filename or "document"
+    ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+
+    if ext == "pdf":
+        try:
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                full_text = "\n".join(p.extract_text() or "" for p in pdf.pages)
+        except Exception as exc:
+            raise HTTPException(status_code=422, detail=f"Could not read PDF: {exc}")
+    elif ext == "txt":
+        full_text = content.decode("utf-8", errors="ignore")
+    else:
+        raise HTTPException(status_code=415, detail="Only PDF and TXT files are supported")
+
+    # Chunk with 50-char overlap
+    chunk_size, overlap = 400, 50
+    raw_chunks, i = [], 0
+    while i < len(full_text):
+        chunk = full_text[i : i + chunk_size].strip()
+        if chunk:
+            raw_chunks.append(chunk)
+        i += chunk_size - overlap
+
+    doc_id = _next_doc_id
+    _next_doc_id += 1
+    _uploaded_docs[doc_id] = {
+        "id": doc_id,
+        "name": filename,
+        "chunks": raw_chunks,
+        "uploaded_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "size_kb": round(len(content) / 1024, 1),
+    }
+    return {"doc_id": doc_id, "name": filename, "chunks": len(raw_chunks), "size_kb": round(len(content) / 1024, 1)}
+
+
+@app.get("/api/uploads")
+def list_uploads():
+    return {
+        "docs": [
+            {"id": d["id"], "name": d["name"], "chunks": len(d["chunks"]),
+             "size_kb": d["size_kb"], "uploaded_at": d["uploaded_at"]}
+            for d in _uploaded_docs.values()
+        ]
+    }
+
+
+@app.delete("/api/uploads/{doc_id}")
+def delete_upload(doc_id: int):
+    if doc_id not in _uploaded_docs:
+        raise HTTPException(status_code=404, detail="Document not found")
+    del _uploaded_docs[doc_id]
+    return {"deleted": doc_id}
 
 
 def _front_setback(road_width: float) -> dict:

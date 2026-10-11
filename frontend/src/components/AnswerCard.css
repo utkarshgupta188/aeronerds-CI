@@ -132,6 +132,41 @@
   padding: 14px 16px;
 }
 
+.source-item--doc {
+  border-color: #a5f3fc;
+  background: #f0fdff;
+}
+
+.source-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.source-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e40af;
+  background: #dbeafe;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.source-tag--doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #0e7490;
+  background: #cffafe;
+}
+
+.source-page {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
 .source-text {
   font-family: 'Noto Sans', 'Noto Sans Devanagari', monospace;
   font-size: 12.5px;

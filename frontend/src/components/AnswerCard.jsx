@@ -182,7 +182,7 @@ export default function AnswerCard({ result, lang, t, question }) {
 
       {result.amendment_checks?.length > 0 && <AmendmentChecks checks={result.amendment_checks} t={t} />}
 
-      {result.source_excerpts?.length > 0 && (
+      {result.chunks?.length > 0 && (
         <div className="sources-section">
           <button
             className="sources-toggle"
@@ -193,15 +193,28 @@ export default function AnswerCard({ result, lang, t, question }) {
               <polyline points="9 18 15 12 9 6"/>
             </svg>
             {t(
-              `${showSources ? 'Hide' : 'Show'} source rules (${result.source_excerpts.length})`,
-              `स्रोत नियम ${showSources ? 'छुपाएं' : 'देखें'} (${result.source_excerpts.length})`
+              `${showSources ? 'Hide' : 'Show'} sources (${result.chunks.length})`,
+              `स्रोत ${showSources ? 'छुपाएं' : 'देखें'} (${result.chunks.length})`
             )}
           </button>
           {showSources && (
             <div className="sources-list">
-              {result.source_excerpts.map((excerpt, i) => (
-                <div key={i} className="source-item">
-                  <pre className="source-text">{excerpt}</pre>
+              {result.chunks.map((c, i) => (
+                <div key={i} className={`source-item${c.source_type === 'uploaded_doc' ? ' source-item--doc' : ''}`}>
+                  <div className="source-meta">
+                    {c.source_type === 'uploaded_doc' ? (
+                      <span className="source-tag source-tag--doc">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        {c.title}
+                      </span>
+                    ) : (
+                      <span className="source-tag">Rule {c.rule} — {c.title}</span>
+                    )}
+                    {c.page_start && (
+                      <span className="source-page">p.{c.page_start}{c.page_end && c.page_end !== c.page_start ? `–${c.page_end}` : ''}</span>
+                    )}
+                  </div>
+                  <pre className="source-text">{c.text}</pre>
                 </div>
               ))}
             </div>

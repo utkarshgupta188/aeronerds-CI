@@ -87,3 +87,25 @@ def search(query: str, rules: List[dict], vectorizer: TfidfVectorizer, top_k: in
     scores = cosine_similarity(query_vec, doc_matrix)[0]
     top_indices = np.argsort(scores)[::-1][:top_k]
     return [rules[i] for i in top_indices]
+
+
+def search_doc_chunks(query: str, chunks: List[str], top_k: int = 3) -> List[dict]:
+    """TF-IDF search over plain-text chunks from an uploaded document."""
+    if not chunks:
+        return []
+    expanded = _normalize_subrules(_expand_query(query))
+    vectorizer = TfidfVectorizer(
+        ngram_range=(1, 2), min_df=1, sublinear_tf=True, token_pattern=r"(?u)\b\w+\b"
+    )
+    try:
+        doc_matrix = vectorizer.fit_transform(chunks)
+        query_vec = vectorizer.transform([expanded])
+        scores = cosine_similarity(query_vec, doc_matrix)[0]
+        top_indices = np.argsort(scores)[::-1][:top_k]
+        return [
+            {"text": chunks[i], "score": float(scores[i])}
+            for i in top_indices
+            if scores[i] > 0.01
+        ]
+    except Exception:
+        return []

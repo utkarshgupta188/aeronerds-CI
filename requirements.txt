@@ -6,3 +6,5 @@ cerebras-cloud-sdk>=1.0.0
 python-dotenv>=1.0.0
 jsonlines>=4.0.0
 pytest>=8.0.0
+python-multipart>=0.0.9
+pdfplumber>=0.10.0

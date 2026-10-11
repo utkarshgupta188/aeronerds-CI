@@ -1,0 +1,143 @@
+.doc-upload {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-upload-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-upload-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.doc-active-badge {
+  margin-left: auto;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.doc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.doc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 3px 8px 3px 6px;
+  font-size: 0.78rem;
+  color: #334155;
+}
+
+.doc-chip svg {
+  color: #0266b3;
+  flex-shrink: 0;
+}
+
+.doc-chip-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-chip-meta {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.doc-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0 0 2px;
+  transition: color 0.15s;
+}
+
+.doc-chip-remove:hover { color: #dc2626; }
+
+.doc-drop-zone {
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  background: #fff;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.doc-drop-zone:hover,
+.doc-drop-zone.drag-over {
+  border-color: #0266b3;
+  background: #eff6ff;
+  color: #0266b3;
+}
+
+.doc-drop-zone svg { flex-shrink: 0; }
+
+.doc-drop-label {
+  font-weight: 500;
+}
+
+.doc-drop-sub {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-left: 2px;
+}
+
+@media (max-width: 480px) {
+  .doc-drop-sub { display: none; }
+}
+
+.doc-upload-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 5px;
+  padding: 5px 8px;
+}
+
+.doc-active-note {
+  font-size: 0.74rem;
+  color: #166534;
+  margin: 0;
+  background: #f0fdf4;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
