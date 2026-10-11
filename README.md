@@ -12,31 +12,73 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 ---
 
-## How to run (5 steps)
+**Live:** https://bhumi.utkarshgupta.qzz.io
 
-1. **Clone the repo**
+## How to run locally
+
+1. **Clone and install**
    ```bash
    git clone https://github.com/utkarshgupta188/aeronerds-CI.git
    cd aeronerds-CI
-   ```
-
-2. **Install dependencies**
-   ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set your Cerebras API key**
+2. **Set your Cerebras API key**
    ```bash
    cp .env.example .env
    # Edit .env and set: CEREBRAS_API_KEY=your_key_here
    ```
 
-4. **Start the server**
+3. **Start the backend** (port 8000)
    ```bash
-   uvicorn backend.main:app --host 0.0.0.0 --port 8000
+   uvicorn backend.main:app --port 8000
    ```
 
-5. **Open** `http://localhost:8000` in your browser.
+4. **Start the frontend** (Node 20+, port 5173; proxies `/api` to the backend)
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+5. **Open** `http://localhost:5173`.
+
+No Node? The backend also serves a single-file fallback UI at `http://localhost:8000` (`templates/index.html`).
+
+## Repository structure
+
+```
+backend/main.py          FastAPI app: /api/ask, /api/calculate, /api/benchmark
+src/embedder.py          TF-IDF retrieval + synonym and Hindi keyword expansion
+src/answerer.py          Cerebras gpt-oss-120b answerer (EN / HI / Hinglish, NOT_FOUND detection)
+data/                    106 rules as JSONL + full text by page
+frontend/                React + Vite UI (assistant, calculator, benchmark, amendments)
+templates/index.html     Single-file fallback UI served at GET /
+tests/                   pytest: retrieval + answerer
+eval.py                  Runs the 17 sample questions from the command line
+deploy/                  EC2 setup + redeploy scripts, systemd unit
+nginx/bhumi.conf         nginx site: serves frontend/dist, proxies /api to port 8010
+```
+
+## Tests
+
+```bash
+pytest tests/ -v      # answerer tests need CEREBRAS_API_KEY
+python eval.py        # 17 sample questions
+```
+
+## Deployment (AWS EC2, no Docker)
+
+Ubuntu 24.04, nginx serves the built frontend, systemd runs uvicorn on `127.0.0.1:8010`.
+
+```bash
+git clone https://github.com/utkarshgupta188/aeronerds-CI.git ~/aeronerds-CI
+cd ~/aeronerds-CI
+bash deploy/setup.sh     # first time: packages, venv, build, nginx, systemd, HTTPS
+bash deploy/update.sh    # every redeploy: pull, build, restart, health check
+```
+
+Point the domain's A record at the instance's public IP, and open ports 80 and 443.
 
 ---
 
@@ -63,6 +105,9 @@ Table of all 17 sample questions with pre-verified answers. "Run Live" button se
 
 ### Citizen Guidance Slip (नागरिक पर्ची)
 Print a slip for the citizen from either the calculator or the assistant result.
+
+### Clerk login and Amendments (संशोधन)
+Clerks sign in with Firebase Authentication (email/password) and record new gazette amendments: rule number, effective date, title, text. Amendments are stored in Firestore and sync live to every open screen. Each question sent to the assistant carries the recorded amendments, and the model is told they take precedence over the base rules. Anyone can read amendments; only signed-in clerks can add or delete them (Firestore security rules).
 
 ---
 
@@ -110,7 +155,9 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 | Retrieval | TF-IDF + cosine similarity (scikit-learn) with synonym and Hindi keyword expansion |
 | Generation | Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk` |
 | Backend | FastAPI + uvicorn |
-| Frontend | Single-file HTML/CSS/JS — no build step, served directly by FastAPI |
+| Frontend | React 19 + Vite 8 (`frontend/`); single-file fallback in `templates/` |
+| Auth + amendments | Firebase Authentication + Cloud Firestore |
+| Hosting | AWS EC2 (Ubuntu 24.04), nginx, systemd, Let's Encrypt |
 | Data | `data/bhumi_vikas_rules.jsonl` — 106 rules, one per line |
 
 ---
@@ -119,8 +166,8 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `GET /` | GET | Serves the UI |
-| `POST /api/ask` | POST | `{question, top_k}` → answer with rule numbers and source text |
+| `GET /` | GET | Serves the fallback UI |
+| `POST /api/ask` | POST | `{question, top_k, amendments?}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
 | `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |
 
