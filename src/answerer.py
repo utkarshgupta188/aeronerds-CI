@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from typing import List
@@ -84,7 +85,102 @@ def _is_not_found(text: str) -> bool:
     return cleaned in ("NOT_FOUND", "NOTFOUND")
 
 
-def answer(question: str, chunks: List[dict], amendments: List[str] = None) -> dict:
+_PRIMARY_RE = re.compile(r"\d+(?:-?[A-Za-z])?")
+
+
+def _primary_rule(value) -> str:
+    m = _PRIMARY_RE.search(str(value))
+    return m.group(0).replace("-", "").lower() if m else ""
+
+
+def _format_amendment(a: dict) -> str:
+    return (
+        f"[AMENDMENT — Rule {a.get('rule_number')}, effective {a.get('effective_date') or 'unknown'}] "
+        f"{a.get('title', '')}: {a.get('text', '')}"
+    )
+
+
+def relevant_amendments(chunks: List[dict], amendments: List[dict], limit: int = 3) -> List[dict]:
+    """Amendments whose rule is among the retrieved rules, paired with that rule's base text."""
+    by_rule = {_primary_rule(c["rule"]): c for c in chunks}
+    out = []
+    for a in amendments or []:
+        base = by_rule.get(_primary_rule(a.get("rule_number")))
+        if base is not None:
+            out.append({"amendment": a, "base": base})
+    return out[:limit]
+
+
+def _parse_json(text: str):
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if not m:
+        return None
+    try:
+        return json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return None
+
+
+def _tri(v):
+    return v if isinstance(v, bool) else None
+
+
+def compare_amendments(question: str, pairs: List[dict], lang: str) -> List[dict]:
+    if not pairs:
+        return []
+    blocks = []
+    for i, p in enumerate(pairs):
+        a, b = p["amendment"], p["base"]
+        blocks.append(
+            f"#{i}\nBASE RULE {b['rule']} — {b['title']}:\n{b['text']}\n"
+            f"AMENDMENT to Rule {a.get('rule_number')} (effective {a.get('effective_date') or 'unknown'}) "
+            f"— {a.get('title', '')}:\n{a.get('text', '')}"
+        )
+    reply_lang = {"hi": "Hindi", "hinglish": "Hinglish (Hindi-English mix)"}.get(lang, "English")
+    system = (
+        "You compare a base building rule with a later amendment for one citizen's question. "
+        "Use ONLY the texts given. For each numbered item decide whether the situation described in the "
+        "question qualifies under the OLD (base) rule and under the NEW (amended) rule. "
+        "Use true or false when the question gives enough facts; use null when it does not. "
+        f"Write old, new and reason in {reply_lang}, one short sentence each. "
+        'Reply with JSON only: {"items":[{"index":0,"old":"...","new":"...",'
+        '"qualifies_old":true,"qualifies_new":false,"reason":"..."}]}'
+    )
+    try:
+        client = Cerebras(api_key=os.environ["CEREBRAS_API_KEY"])
+        resp = client.chat.completions.create(
+            model=_MODEL,
+            max_tokens=2500,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": "\n\n".join(blocks) + f"\n\nQuestion: {question}"},
+            ],
+        )
+        data = _parse_json(resp.choices[0].message.content or "")
+    except Exception:
+        return []
+    if not data:
+        return []
+    checks = []
+    for item in data.get("items", []):
+        idx = item.get("index")
+        if not isinstance(idx, int) or not 0 <= idx < len(pairs):
+            continue
+        a, b = pairs[idx]["amendment"], pairs[idx]["base"]
+        checks.append({
+            "rule": b["rule"],
+            "title": a.get("title", ""),
+            "effective_date": a.get("effective_date"),
+            "old": str(item.get("old", "")),
+            "new": str(item.get("new", "")),
+            "qualifies_old": _tri(item.get("qualifies_old")),
+            "qualifies_new": _tri(item.get("qualifies_new")),
+            "reason": str(item.get("reason", "")),
+        })
+    return checks
+
+
+def answer(question: str, chunks: List[dict], amendments: List[dict] = None) -> dict:
     lang = _detect_language(question)
     if lang == "hi":
         system = _SYSTEM_HI
@@ -98,7 +194,9 @@ def answer(question: str, chunks: List[dict], amendments: List[str] = None) -> d
     )
     amend_text = ""
     if amendments:
-        amend_text = "\n\nLATEST AMENDMENTS (take precedence over base rules):\n" + "\n".join(amendments)
+        amend_text = "\n\nLATEST AMENDMENTS (take precedence over base rules):\n" + "\n".join(
+            _format_amendment(a) for a in amendments
+        )
     user_msg = f"Relevant rules:\n{rule_text}{amend_text}\n\nQuestion: {question}"
 
     try:
@@ -168,11 +266,16 @@ def answer(question: str, chunks: List[dict], amendments: List[str] = None) -> d
         else text + _AMENDMENT_NOTE
     )
 
+    amendment_checks = []
+    if amendments and not not_found:
+        amendment_checks = compare_amendments(question, relevant_amendments(chunks, amendments), lang)
+
     return {
         "answer_text": answer_text,
         "rule_numbers": rule_numbers,
         "source_excerpts": source_excerpts,
         "chunks": chunk_objects,
+        "amendment_checks": amendment_checks,
         "not_found": not_found,
         "language": lang,
         "error": False,

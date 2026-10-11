@@ -55,6 +55,57 @@ function AnswerBody({ text }) {
   return <>{elements}</>
 }
 
+function Qualifies({ value, t }) {
+  if (value === true) return <span className="badge badge-green">✓ {t('You qualify', 'आप पात्र हैं')}</span>
+  if (value === false) return <span className="badge badge-red">✗ {t('Does not qualify', 'पात्र नहीं')}</span>
+  return <span className="badge badge-amber">? {t('Not enough details', 'पर्याप्त जानकारी नहीं')}</span>
+}
+
+function verdict(c, t) {
+  const { qualifies_old: o, qualifies_new: n } = c
+  if (o === true && n === true) return t('Qualifies under both the old rule and the amendment.', 'पुराने नियम और संशोधन, दोनों में पात्र।')
+  if (o === false && n === true) return t('Qualifies only under the amendment.', 'केवल संशोधन के तहत पात्र।')
+  if (o === null && n === true) return t('Qualifies under the amendment.', 'संशोधन के तहत पात्र।')
+  if (n === false && o === null) return t('Does not qualify under the amendment.', 'संशोधन के तहत पात्र नहीं।')
+  if (o === true && n === false) return t('Qualified under the old rule, but not under the amendment.', 'पुराने नियम में पात्र, संशोधन में नहीं।')
+  if (o === false && n === false) return t('Does not qualify under either.', 'दोनों में पात्र नहीं।')
+  return t('Add more details to your question to check eligibility.', 'पात्रता जांचने के लिए प्रश्न में और जानकारी जोड़ें।')
+}
+
+function AmendmentChecks({ checks, t }) {
+  return (
+    <div className="amcheck">
+      <div className="amcheck-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        {t('This rule has been amended', 'इस नियम में संशोधन हुआ है')}
+      </div>
+      {checks.map((c, i) => (
+        <div key={i} className="amcheck-item">
+          <div className="amcheck-head">
+            <span className="rule-chip">Rule {c.rule}</span>
+            <span className="amcheck-name">{c.title}</span>
+          </div>
+          <div className="amcheck-cols">
+            <div className="amcheck-col amcheck-old">
+              <div className="amcheck-label">{t('Old rule (6 Mar 2025)', 'पुराना नियम (6 मार्च 2025)')}</div>
+              <p>{c.old}</p>
+              <Qualifies value={c.qualifies_old} t={t} />
+            </div>
+            <div className="amcheck-col amcheck-new">
+              <div className="amcheck-label">
+                {t('New (amended)', 'नया (संशोधित)')}{c.effective_date ? ` · ${c.effective_date}` : ''}
+              </div>
+              <p>{c.new}</p>
+              <Qualifies value={c.qualifies_new} t={t} />
+            </div>
+          </div>
+          <div className="amcheck-verdict"><strong>{verdict(c, t)}</strong> {c.reason}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function AnswerCard({ result, lang, t, question }) {
   const [showSources, setShowSources] = useState(false)
 
@@ -128,6 +179,8 @@ export default function AnswerCard({ result, lang, t, question }) {
       <div className="answer-text" lang={result.language === 'hi' ? 'hi' : 'en'}>
         <AnswerBody text={result.answer_text} />
       </div>
+
+      {result.amendment_checks?.length > 0 && <AmendmentChecks checks={result.amendment_checks} t={t} />}
 
       {result.source_excerpts?.length > 0 && (
         <div className="sources-section">

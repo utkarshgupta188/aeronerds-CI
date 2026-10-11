@@ -30,9 +30,12 @@ export default function Assistant({ lang, t, initialQuestion = '' }) {
   useEffect(() => {
     const q = query(collection(db, 'amendments'), orderBy('added_at', 'desc'))
     return onSnapshot(q, snap => {
-      setAmendments(snap.docs.map(d => d.data()).filter(a => a.active !== false).map(a =>
-        `[AMENDMENT — Rule ${a.rule_number}, effective ${a.effective_date || 'unknown'}] ${a.title}: ${a.text}`
-      ))
+      setAmendments(snap.docs.map(d => d.data()).filter(a => a.active !== false).map(a => ({
+        rule_number: String(a.rule_number),
+        title: a.title || '',
+        text: a.text || '',
+        effective_date: a.effective_date || null,
+      })))
     })
   }, [])
 
