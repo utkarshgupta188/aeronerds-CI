@@ -33,10 +33,17 @@ def get_index():
     return _rules, _vec
 
 
+class Amendment(BaseModel):
+    rule_number: str
+    title: str = ""
+    text: str = ""
+    effective_date: Optional[str] = None
+
+
 class AskRequest(BaseModel):
     question: str
     top_k: int = 5
-    amendments: list[str] = []
+    amendments: list[Amendment] = []
 
 
 class CalcRequest(BaseModel):
@@ -57,7 +64,7 @@ def list_rules():
 def ask(req: AskRequest):
     rules, vec = get_index()
     chunks = search(req.question, rules, vec, top_k=req.top_k)
-    result = llm_answer(req.question, chunks, amendments=req.amendments)
+    result = llm_answer(req.question, chunks, amendments=[a.model_dump() for a in req.amendments])
     return result
 
 
