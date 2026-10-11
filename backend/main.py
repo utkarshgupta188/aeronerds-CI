@@ -164,11 +164,34 @@ def _permission_fee(built_up_area: float, building_type: str) -> dict:
 
 @app.post("/api/calculate")
 def calculate(req: CalcRequest):
-    front = _front_setback(req.road_width)
-    rear = _rear_setback(req.plot_area)
+    residential_low = req.building_type == "residential" and req.building_height <= 12.5
+    if residential_low:
+        front = _front_setback(req.road_width)
+        rear = _rear_setback(req.plot_area)
+    elif req.building_type == "residential":
+        msg = "Height above 12.5 m: open spaces per Rule 42, Tables 4 and 5 (Rule 56(5)) — not computed here"
+        front = {"value": None, "rule": "56(5)", "label": msg}
+        rear = {"value": None, "rule": "56(5)", "label": msg}
+    elif req.building_type == "farm_house":
+        msg = "Farm house: 7.5 m open space from all sides (Rule 17(f))"
+        front = {"value": 7.5, "rule": "17(f)", "label": msg}
+        rear = {"value": 7.5, "rule": "17(f)", "label": msg}
+    else:
+        msg = "Rule 56 tables are for residential buildings; other occupancies: see Rule 57 and the Development Plan"
+        front = {"value": None, "rule": "57", "label": msg}
+        rear = {"value": None, "rule": "57", "label": msg}
+
     # Estimate built-up area as plot_area × FAR 1.25 (residential default) if not provided
     bua = req.built_up_area if req.built_up_area and req.built_up_area > 0 else req.plot_area * 1.25
-    fee = _permission_fee(bua, req.building_type)
+    if req.building_height > 30:
+        fee = {"value": None, "rule": "21(3)(b)", "label": "High-rise (above 30 m or 10 storeys): Rule 21(3)(b) schedule does not apply — see Rule 21"}
+    else:
+        fee = _permission_fee(bua, req.building_type)
+
+    instant_approval = (
+        "Plot up to 186 sq m, residential, individual owner: instant/deemed approval available — Rule 12-A (forms A-2(2), A-2(3))"
+        if req.building_type == "residential" and req.plot_area <= 186 else ""
+    )
 
     lift_required = req.building_height > 12.5
     lift_note = (
@@ -194,6 +217,7 @@ def calculate(req: CalcRequest):
         far_note = (
             "Farm house (Rule 17): min plot 0.40 ha, max FAR 0.10, max height 7.5 m, "
             "7.5 m open space on all sides."
+            + (" Plot is below the 0.40 ha (4000 sq m) minimum — farm house not permissible." if req.plot_area < 4000 else "")
         )
         max_floor_area = round(req.plot_area * 0.10, 1)
     else:
@@ -212,6 +236,7 @@ def calculate(req: CalcRequest):
         "lift_note": lift_note,
         "dev_permission": dev_permission,
         "far_note": far_note,
+        "instant_approval": instant_approval,
         "max_floor_area": max_floor_area,
         "side_note": side_note,
         "data_note": "Consolidated to 6 March 2025. Verify against the official gazette.",

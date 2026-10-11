@@ -749,6 +749,10 @@ body {
           <i class="ph ph-stack"></i>
           <div class="note-text" id="rFarNote"></div>
         </div>
+        <div class="note-row dev" id="rInstantRow" style="display:none;">
+          <i class="ph ph-lightning"></i>
+          <div class="note-text" id="rInstantNote"></div>
+        </div>
       </div>
       <div style="text-align:right;">
         <button class="btn btn-primary btn-sm" onclick="openSlipModalFromCalc()">
@@ -975,18 +979,31 @@ function renderAnswer(data) {
 
   // Answer text
   text.className = 'answer-text ' + (data.not_found ? 'not-found' : 'found-yes');
-  text.textContent = data.answer_text || (lang === 'hi' ? 'कोई उत्तर नहीं मिला।' : 'No answer found.');
+  const rawAns = data.answer_text || (lang === 'hi' ? 'कोई उत्तर नहीं मिला।' : 'No answer found.');
+  text.innerHTML = rawAns
+    .replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]))
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^_\((.*)\)_$/gm, '<span style="font-size:12px;color:var(--text-muted);font-style:italic;">($1)</span>')
+    .replace(/^\s*[-•]\s+/gm, '• ')
+    .replace(/\n/g, '<br>');
 
   // Sources — API returns chunks (list of {rule, title, text}) or source_excerpts (strings)
-  const chunkList = data.chunks || [];
+  const cited = new Set((data.rule_numbers || []).map(r => String(r).toLowerCase().replace(/-/g, '')));
+  const isCited = c => cited.has(String(c.rule).toLowerCase().replace(/-/g, ''));
+  const chunkList = (data.chunks || []).slice().sort((a, b) => isCited(b) - isCited(a));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
   if (chunkList.length > 0) {
     srcToggle.style.display = 'flex';
     srcExcerpts.innerHTML = chunkList.map(c => `
       <div class="source-excerpt-item">
-        <div class="source-excerpt-rule">Rule ${c.rule} — ${c.title || ''}</div>
-        <div class="source-excerpt-text">${(c.text || '').substring(0, 300)}${c.text && c.text.length > 300 ? '…' : ''}</div>
+        <div class="source-excerpt-rule">Rule ${esc(c.rule)} — ${esc(c.title)}
+          ${c.page_start ? ' · PDF p.' + c.page_start + (c.page_end && c.page_end !== c.page_start ? '–' + c.page_end : '') : ''}
+          ${isCited(c) ? '<span class="badge green" style="margin-left:6px;">cited in answer</span>' : ''}</div>
+        <div class="source-excerpt-text" style="white-space:pre-wrap;max-height:220px;overflow:auto;">${esc(c.text)}</div>
       </div>`).join('');
-    if (sourcesOpen) srcExcerpts.classList.add('open');
+    sourcesOpen = true;
+    srcExcerpts.classList.add('open');
+    document.getElementById('sourceArrow').className = 'ph ph-caret-up';
   } else {
     srcToggle.style.display = 'none';
     srcExcerpts.innerHTML = '';
@@ -1088,6 +1105,8 @@ function renderCalcResults(d) {
   document.getElementById('rLiftNote').textContent = d.lift_note;
   document.getElementById('rDevPermission').textContent = d.dev_permission;
   document.getElementById('rFarNote').textContent = d.far_note || '';
+  document.getElementById('rInstantNote').textContent = d.instant_approval || '';
+  document.getElementById('rInstantRow').style.display = d.instant_approval ? 'flex' : 'none';
 
   const resultsDiv = document.getElementById('calcResults');
   resultsDiv.style.display = 'block';
@@ -1201,8 +1220,8 @@ function openSlipModalFromCalc() {
     ['सड़क चौड़ाई / Road Width', d.road_width + ' m', null],
     ['भवन ऊंचाई / Building Height', d.building_height + ' m', null],
     ['भवन प्रकार / Building Type', d.building_type, null],
-    ['आगे खुला / Front Setback', d.front_setback.value + ' m', 'Rule ' + d.front_setback.rule],
-    ['पीछे खुला / Rear Setback', d.rear_setback.value + ' m', 'Rule ' + d.rear_setback.rule],
+    ['आगे खुला / Front Setback', d.front_setback.value != null ? d.front_setback.value + ' m' : d.front_setback.label, 'Rule ' + d.front_setback.rule],
+    ['पीछे खुला / Rear Setback', d.rear_setback.value != null ? d.rear_setback.value + ' m' : d.rear_setback.label, 'Rule ' + d.rear_setback.rule],
     ['कुल शुल्क / Total Fee', d.permission_fee.value != null ? '₹' + d.permission_fee.value.toLocaleString('en-IN') : '—', 'Rule ' + d.permission_fee.rule],
     ['FAR / अधिकतम फर्श क्षेत्र', d.far_note || '—', null],
     ['लिफ्ट / Lift', d.lift_note, null],

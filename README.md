@@ -6,6 +6,10 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Team:** AeroNerds
 
+**Members:** _add the 4–5 team member names here before submitting_
+
+**Which UI is the product:** `templates/index.html`, served by FastAPI at `/` — this is what the run steps below start. `frontend/` is an alternate React build (with Firebase login and an amendment manager) and is not needed to run the tool.
+
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
 **User story:** A citizen stands at the BMC counter and asks "My plot is 200 sq m on a 9 m road. What is the front setback, and what fee do I pay?" The clerk types the question, gets the answer (3.0 m — Rule 56(1)(a), ₹3,250 for an estimated 250 sq m built-up area — Rule 21(2)(ii) + 21(3)(b)), shows the citizen the rule number, prints the guidance slip.
@@ -86,6 +90,11 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 
 ## What doesn't work / known gaps
 
+- **Calculator scope:** setbacks use the Rule 56 tables, which apply to residential buildings up to 12.5 m. Taller or non-residential buildings show "not computed" with the rule to check (Rule 42 Tables 4–5, Rule 57). Fees use the Rule 21(3)(b) schedule up to 30 m height (above that is high-rise and is not computed). If built-up area is blank it is estimated as plot area × 1.25.
+- **Floors:** the rules fix FAR (Rule 61) but not a floor count; the Development Plan decides (Rule 103). The tool reports max floor area, not a number of floors.
+- **"Not found"** relies on the model following the instruction to answer `NOT_FOUND`; retrieval scores cannot separate out-of-scope questions, so check any surprising answer against the cited rule text.
+- Retrieval is TF-IDF: for the 17 sample questions the relevant rule is in the top 5 for all except Q11 (covered by the amendment note in the prompt). Unusual wording can miss.
+- Running the tests: `pytest tests/test_calculator.py tests/test_retriever.py` needs no key; `tests/test_answerer.py` calls the model and needs `CEREBRAS_API_KEY`.
 - The Hindi PDF uses an old font that copies as garbage — Hindi query support comes from keyword expansion into English, not from reading the Hindi PDF
 - Very long or compound questions sometimes get truncated; break them into one question at a time
 - Requires a Cerebras API key — the calculator works without one, the assistant does not
