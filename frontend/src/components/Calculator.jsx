@@ -3,7 +3,7 @@ import { apiCalculate } from '../api.js'
 import './Calculator.css'
 
 export default function Calculator({ lang, t }) {
-  const [form, setForm] = useState({ plot_area: '', road_width: '', building_height: '', building_type: 'residential' })
+  const [form, setForm] = useState({ plot_area: '', road_width: '', building_height: '', built_up_area: '', building_type: 'residential' })
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -18,6 +18,7 @@ export default function Calculator({ lang, t }) {
         plot_area: Number(form.plot_area),
         road_width: Number(form.road_width),
         building_height: Number(form.building_height),
+        built_up_area: form.built_up_area ? Number(form.built_up_area) : null,
         building_type: form.building_type,
       })
       setResult(data)
@@ -52,6 +53,10 @@ export default function Calculator({ lang, t }) {
           <div className="field">
             <label htmlFor="building_height">{t('Building Height (m)', 'भवन की ऊंचाई (मी.)')}</label>
             <input id="building_height" type="number" min="1" step="0.5" placeholder="e.g. 9" value={form.building_height} onChange={e => set('building_height', e.target.value)} />
+          </div>
+          <div className="field">
+            <label htmlFor="built_up_area">{t('Built-up Area (sq m, optional)', 'निर्मित क्षेत्र (वर्ग मी., वैकल्पिक)')}</label>
+            <input id="built_up_area" type="number" min="1" step="1" placeholder={t('blank = plot × 1.25', 'खाली = प्लॉट × 1.25')} value={form.built_up_area} onChange={e => set('built_up_area', e.target.value)} />
           </div>
           <div className="field">
             <label htmlFor="building_type">{t('Building Type', 'भवन प्रकार')}</label>
@@ -119,6 +124,12 @@ export default function Calculator({ lang, t }) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             {result.dev_permission}
           </div>
+          {result.far_note && (
+            <div className="side-note" style={{marginTop:'0.4rem'}}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              {result.far_note}
+            </div>
+          )}
           <div className="data-note">{result.data_note}</div>
         </div>
       )}

@@ -43,8 +43,6 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 5. **Open** `http://localhost:5173`.
 
-No Node? The backend also serves a single-file fallback UI at `http://localhost:8000` (`templates/index.html`).
-
 ## Repository structure
 
 ```
@@ -53,7 +51,6 @@ src/embedder.py          TF-IDF retrieval + synonym and Hindi keyword expansion
 src/answerer.py          Cerebras gpt-oss-120b answerer (EN / HI / Hinglish, NOT_FOUND detection)
 data/                    106 rules as JSONL + full text by page
 frontend/                React + Vite UI (assistant, calculator, benchmark, amendments)
-templates/index.html     Single-file fallback UI served at GET /
 tests/                   pytest: retrieval + answerer
 eval.py                  Runs the 17 sample questions from the command line
 deploy/                  EC2 setup + redeploy scripts, systemd unit
@@ -125,8 +122,9 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 - Fee questions (Rule 21), setback questions (Rule 56), farm house (Rule 17), permission validity (Rule 23), electric line clearances (Rule 52), lifts (Rule 83), Development Plan precedence (Rule 103)
 - Correctly says "Not found" for out-of-scope questions — never guesses
 - Calculator does all fee and setback arithmetic in Python — no LLM arithmetic
-- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator, in the ticker bar, and in the LLM system prompt
-- Bilingual UI — Hindi/English toggle, font resizer
+- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator and in the LLM system prompt
+- Bilingual UI — Hindi/English toggle; Hinglish questions answered in Hinglish
+- Clerk-recorded amendments flow into every answer
 - Printable citizen guidance slip
 
 ## What doesn't work / known gaps
@@ -155,7 +153,7 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 | Retrieval | TF-IDF + cosine similarity (scikit-learn) with synonym and Hindi keyword expansion |
 | Generation | Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk` |
 | Backend | FastAPI + uvicorn |
-| Frontend | React 19 + Vite 8 (`frontend/`); single-file fallback in `templates/` |
+| Frontend | React 19 + Vite 8 (`frontend/`) |
 | Auth + amendments | Firebase Authentication + Cloud Firestore |
 | Hosting | AWS EC2 (Ubuntu 24.04), nginx, systemd, Let's Encrypt |
 | Data | `data/bhumi_vikas_rules.jsonl` — 106 rules, one per line |
@@ -166,7 +164,6 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `GET /` | GET | Serves the fallback UI |
 | `POST /api/ask` | POST | `{question, top_k, amendments?}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
 | `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |

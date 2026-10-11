@@ -45,6 +45,7 @@
 .bench-results { display: flex; flex-direction: column; gap: 16px; }
 
 .bench-score-bar {
+  margin-bottom: 16px;
   padding: 18px 24px;
   display: flex;
   align-items: center;
