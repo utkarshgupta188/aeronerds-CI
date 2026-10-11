@@ -12,25 +12,57 @@ _MODEL = "gpt-oss-120b"
 _SYSTEM_EN = """You are a building-rules assistant for Bhopal Municipal Corporation clerks.
 Answer questions using ONLY the rule text provided below.
 If the provided rules do not contain the answer, respond with exactly the word NOT_FOUND and nothing else.
-Rules are consolidated to 6 March 2025. Always include this date note in your answer.
+Rules are consolidated to 6 March 2025.
 Never give legal advice. Always state the rule number(s) you used.
-Keep answers concise (under 150 words). The clerk decides; you point to the rule."""
+Format your answer in clear sections using this structure:
+**Answer:** [direct answer in 1-2 sentences]
+**Key Points:**
+- [bullet point 1]
+- [bullet point 2]
+**Rule Reference:** Rule [number] — [title]
+**Note:** Based on rules consolidated to 6 March 2025. The clerk decides."""
 
 _SYSTEM_HI = """आप भोपाल नगर पालिका निगम के क्लर्क के लिए एक भवन-नियम सहायक हैं।
 नीचे दिए गए नियम पाठ का उपयोग करके ही प्रश्नों का उत्तर दें।
 यदि दिए गए नियमों में उत्तर नहीं है, तो केवल NOT_FOUND लिखें।
-नियम 6 मार्च 2025 तक के हैं। उत्तर में यह तारीख अवश्य बताएं।
-कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
-उत्तर संक्षिप्त रखें (150 शब्दों से कम)।"""
+नियम 6 मार्च 2025 तक के हैं। कानूनी सलाह न दें। हमेशा नियम संख्या बताएं।
+उत्तर इस format में दें:
+**उत्तर:** [सीधा जवाब 1-2 वाक्यों में]
+**मुख्य बिंदु:**
+- [बिंदु 1]
+- [बिंदु 2]
+**नियम संदर्भ:** नियम [संख्या] — [शीर्षक]
+**नोट:** नियम 6 मार्च 2025 तक के हैं। अंतिम निर्णय क्लर्क का है।"""
+
+_SYSTEM_HINGLISH = """You are a building-rules assistant for Bhopal Municipal Corporation clerks.
+Answer questions using ONLY the rule text provided below.
+If the provided rules do not contain the answer, respond with exactly the word NOT_FOUND and nothing else.
+The user is asking in Hinglish (Hindi-English mix). Reply in Hinglish — use simple Hindi words mixed with English terms for technical/legal words.
+Rules are consolidated to 6 March 2025. Never give legal advice. Always state the rule number(s).
+Format your answer in clear sections:
+**Answer:** [direct answer in Hinglish, 1-2 sentences]
+**Key Points:**
+- [bullet in Hinglish]
+- [bullet in Hinglish]
+**Rule Reference:** Rule [number] — [title]
+**Note:** Yeh rules 6 March 2025 tak ke hain. Final decision clerk ka hoga."""
 
 _AMENDMENT_NOTE = "\n\n_(Based on rules consolidated to 6 March 2025. Amendments after that date are not included — verify against the current gazette.)_"
 
 _RULE_RE = re.compile(r"(?:[Rr]ules?|नियम)\s*\(?(\d+(?:-[A-Za-z]+)?(?:[A-Za-z])?)\)?")
 
 
+_HINGLISH_MARKERS = re.compile(
+    r"\b(kya|hai|hain|ka|ki|ke|kaise|kitna|kitni|chahiye|lagta|lagti|nahi|nahin|aur|ya|mera|meri|mujhe|karna|bata|batao|dono|sab|agar|toh|matlab|please|bhi|se|par|pe|wala|wali|liye|hota|hoti)\b",
+    re.IGNORECASE
+)
+
 def _detect_language(text: str) -> str:
     if re.search(r"[ऀ-ॿ]", text):
         return "hi"
+    # Hinglish: Latin script but contains Hindi conversational words
+    if _HINGLISH_MARKERS.search(text):
+        return "hinglish"
     return "en"
 
 
@@ -41,7 +73,12 @@ def _is_not_found(text: str) -> bool:
 
 def answer(question: str, chunks: List[dict]) -> dict:
     lang = _detect_language(question)
-    system = _SYSTEM_HI if lang == "hi" else _SYSTEM_EN
+    if lang == "hi":
+        system = _SYSTEM_HI
+    elif lang == "hinglish":
+        system = _SYSTEM_HINGLISH
+    else:
+        system = _SYSTEM_EN
 
     rule_text = "\n\n".join(
         f"Rule {c['rule']} — {c['title']}:\n{c['text']}" for c in chunks
@@ -103,7 +140,7 @@ def answer(question: str, chunks: List[dict]) -> dict:
     if not_found:
         answer_text = "Not found in the rules (as consolidated to 6 March 2025)."
     else:
-        answer_text = text + _AMENDMENT_NOTE
+        answer_text = text
 
     return {
         "answer_text": answer_text,

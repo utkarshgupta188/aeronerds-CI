@@ -37,6 +37,14 @@
   font-weight: 700;
 }
 
+.tab-clerk { position: relative; }
+
+.tab-clerk-dot {
+  width: 7px; height: 7px;
+  background: #4ADE80; border-radius: 50%;
+  position: absolute; top: 10px; right: 10px;
+}
+
 @media (max-width: 500px) {
   .tab-btn span { display: none; }
   .tab-btn { padding: 14px 16px; }

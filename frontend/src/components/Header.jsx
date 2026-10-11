@@ -14,7 +14,7 @@ const BMCEmblem = () => (
   </svg>
 )
 
-export default function Header({ lang, setLang, t }) {
+export default function Header({ lang, setLang, t, user, onLoginClick }) {
   return (
     <header className="header">
       <div className="header-stripe" />
@@ -38,6 +38,14 @@ export default function Header({ lang, setLang, t }) {
             aria-label="Toggle language"
           >
             {lang === 'en' ? 'हिन्दी' : 'English'}
+          </button>
+          <button className="clerk-login-btn" onClick={onLoginClick} title={user ? user.email : t('Clerk Login', 'क्लर्क लॉगिन')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            {user ? (
+              <span className="clerk-dot" />
+            ) : (
+              <span>{t('Clerk', 'क्लर्क')}</span>
+            )}
           </button>
         </div>
       </div>
