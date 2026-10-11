@@ -8,7 +8,7 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 **Members:** _add the 4–5 team member names here before submitting_
 
-**UI:** the React app in `frontend/` (Vite, port 5173), talking to the FastAPI backend on port 8000.
+**UI:** the React app in `frontend/` (assistant, calculator, benchmark, clerk login, amendments). The FastAPI backend serves only `/api/*`.
 
 **Built for:** Building-permission clerks at Bhopal Municipal Corporation.
 
@@ -16,34 +16,70 @@ Ask the MP Bhumi Vikas Rules 2012 in plain English or Hindi. Get the answer with
 
 ---
 
-## How to run (5 steps)
+**Live:** https://bhumi.utkarshgupta.qzz.io
 
-1. **Clone the repo**
+## How to run locally
+
+1. **Clone and install**
    ```bash
    git clone https://github.com/utkarshgupta188/aeronerds-CI.git
    cd aeronerds-CI
+   pip install -r requirements.txt
    ```
 
-2. **Install backend dependencies and set your Cerebras API key**
+2. **Set your Cerebras API key**
    ```bash
-   pip install -r requirements.txt
    cp .env.example .env
    # Edit .env and set: CEREBRAS_API_KEY=your_key_here
    ```
 
-3. **Start the backend (API on port 8000)**
+3. **Start the backend** (port 8000)
    ```bash
-   uvicorn backend.main:app --host 0.0.0.0 --port 8000
+   uvicorn backend.main:app --port 8000
    ```
 
-4. **Start the frontend (port 5173)**
+4. **Start the frontend** (Node 20+, port 5173; proxies `/api` to the backend)
    ```bash
    cd frontend
    npm install
    npm run dev
    ```
 
-5. **Open** `http://localhost:5173` in your browser.
+5. **Open** `http://localhost:5173`.
+
+## Repository structure
+
+```
+backend/main.py          FastAPI app: /api/ask, /api/calculate, /api/benchmark
+src/embedder.py          TF-IDF retrieval + synonym and Hindi keyword expansion
+src/answerer.py          Cerebras gpt-oss-120b answerer (EN / HI / Hinglish, NOT_FOUND detection)
+data/                    106 rules as JSONL + full text by page
+frontend/                React + Vite UI (assistant, calculator, benchmark, amendments)
+tests/                   pytest: retrieval + answerer
+eval.py                  Runs the 17 sample questions from the command line
+deploy/                  EC2 setup + redeploy scripts, systemd unit
+nginx/bhumi.conf         nginx site: serves frontend/dist, proxies /api to port 8010
+```
+
+## Tests
+
+```bash
+pytest tests/ -v      # answerer tests need CEREBRAS_API_KEY
+python eval.py        # 17 sample questions
+```
+
+## Deployment (AWS EC2, no Docker)
+
+Ubuntu 24.04, nginx serves the built frontend, systemd runs uvicorn on `127.0.0.1:8010`.
+
+```bash
+git clone https://github.com/utkarshgupta188/aeronerds-CI.git ~/aeronerds-CI
+cd ~/aeronerds-CI
+bash deploy/setup.sh     # first time: packages, venv, build, nginx, systemd, HTTPS
+bash deploy/update.sh    # every redeploy: pull, build, restart, health check
+```
+
+Point the domain's A record at the instance's public IP, and open ports 80 and 443.
 
 ---
 
@@ -71,6 +107,9 @@ Table of all 17 sample questions with pre-verified answers. "Run Live" button se
 ### Citizen Guidance Slip (नागरिक पर्ची)
 Print a slip for the citizen from either the calculator or the assistant result.
 
+### Clerk login and Amendments (संशोधन)
+Clerks sign in with Firebase Authentication (email/password) and record new gazette amendments: rule number, effective date, title, text. Amendments are stored in Firestore and sync live to every open screen. Each question sent to the assistant carries the recorded amendments, and the model is told they take precedence over the base rules. Anyone can read amendments; only signed-in clerks can add or delete them (Firestore security rules).
+
 ---
 
 ## Accuracy on sample questions
@@ -87,8 +126,9 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 - Fee questions (Rule 21), setback questions (Rule 56), farm house (Rule 17), permission validity (Rule 23), electric line clearances (Rule 52), lifts (Rule 83), Development Plan precedence (Rule 103)
 - Correctly says "Not found" for out-of-scope questions — never guesses
 - Calculator does all fee and setback arithmetic in Python — no LLM arithmetic
-- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator, in the ticker bar, and in the LLM system prompt
-- Bilingual UI — Hindi/English toggle, font resizer
+- 28 August 2026 amendment to Rule 2(5)(c) covered: in the calculator and in the LLM system prompt
+- Bilingual UI — Hindi/English toggle; Hinglish questions answered in Hinglish
+- Clerk-recorded amendments flow into every answer
 - Printable citizen guidance slip
 
 ## What doesn't work / known gaps
@@ -122,7 +162,9 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 | Retrieval | TF-IDF + cosine similarity (scikit-learn) with synonym and Hindi keyword expansion |
 | Generation | Cerebras `gpt-oss-120b` via `cerebras-cloud-sdk` |
 | Backend | FastAPI + uvicorn |
-| Frontend | React + Vite (`frontend/`) |
+| Frontend | React 19 + Vite 8 (`frontend/`) |
+| Auth + amendments | Firebase Authentication + Cloud Firestore |
+| Hosting | AWS EC2 (Ubuntu 24.04), nginx, systemd, Let's Encrypt |
 | Data | `data/bhumi_vikas_rules.jsonl` — 106 rules, one per line |
 
 ---
@@ -131,7 +173,7 @@ The **Run Live** button sends all 17 to the model and marks each result as match
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `POST /api/ask` | POST | `{question, top_k}` → answer with rule numbers and source text |
+| `POST /api/ask` | POST | `{question, top_k, amendments?}` → answer with rule numbers and source text |
 | `POST /api/calculate` | POST | `{plot_area, road_width, building_height, building_type, built_up_area?}` → setbacks and fees |
 | `GET /api/benchmark` | GET | Runs all 17 sample questions and returns results |
 

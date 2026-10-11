@@ -1,41 +1,43 @@
 #!/bin/bash
-# EC2 Ubuntu 22.04 — run once as ubuntu user
+# One-time setup on Ubuntu 24.04 EC2. Run from the cloned repo: bash deploy/setup.sh
 set -e
+APP_DIR=/home/ubuntu/aeronerds-CI
+DOMAIN=bhumi.utkarshgupta.qzz.io
+cd "$APP_DIR"
 
-# 1. System deps
+# System packages (Vite 8 needs Node 20+)
 sudo apt-get update -y
-sudo apt-get install -y nginx python3 python3-venv python3-pip nodejs npm git
+sudo apt-get install -y nginx python3 python3-venv python3-pip git certbot python3-certbot-nginx
+if ! node -v 2>/dev/null | grep -qE '^v(2[0-9]|[3-9][0-9])'; then
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+fi
 
-# 2. Clone repo
-sudo mkdir -p /var/www/bhumi
-sudo chown ubuntu:ubuntu /var/www/bhumi
-git clone https://github.com/utkarshgupta188/aeronerds-CI.git /var/www/bhumi
-cd /var/www/bhumi
-
-# 3. Python venv + deps
+# Backend
 python3 -m venv venv
 venv/bin/pip install --no-cache-dir -r requirements.txt
-venv/bin/pip install --no-cache-dir cerebras-cloud-sdk
 
-# 4. Build frontend
-cd frontend && npm ci && npm run build && cd ..
+# Frontend
+(cd frontend && npm ci && npm run build)
+chmod o+x /home/ubuntu "$APP_DIR" "$APP_DIR/frontend" "$APP_DIR/frontend/dist"
 
-# 5. .env
-cat > .env <<'EOF'
-CEREBRAS_API_KEY=REPLACE_ME
-EOF
-echo "⚠  Edit /var/www/bhumi/.env and set CEREBRAS_API_KEY"
+# Secrets
+if [ ! -f .env ]; then
+  echo "CEREBRAS_API_KEY=REPLACE_ME" > .env
+  echo "Edit $APP_DIR/.env and set CEREBRAS_API_KEY"
+fi
 
-# 6. nginx
+# nginx
 sudo cp nginx/bhumi.conf /etc/nginx/sites-available/bhumi
 sudo ln -sf /etc/nginx/sites-available/bhumi /etc/nginx/sites-enabled/bhumi
-sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
 
-# 7. systemd service
+# Backend service
 sudo cp deploy/bhumi-backend.service /etc/systemd/system/bhumi-backend.service
 sudo systemctl daemon-reload
-sudo systemctl enable bhumi-backend
-sudo systemctl start bhumi-backend
+sudo systemctl enable --now bhumi-backend
 
-echo "✓ Done. Edit .env then: sudo systemctl restart bhumi-backend"
+# HTTPS
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || true
+
+echo "Done: https://$DOMAIN"

@@ -4,9 +4,10 @@ After=network.target
 
 [Service]
 User=ubuntu
-WorkingDirectory=/var/www/bhumi
-EnvironmentFile=/var/www/bhumi/.env
-ExecStart=/var/www/bhumi/venv/bin/python3 backend/main.py
+WorkingDirectory=/home/ubuntu/aeronerds-CI
+EnvironmentFile=/home/ubuntu/aeronerds-CI/.env
+# Port 8010, not 8000: another app on the shared EC2 host already owns 8000.
+ExecStart=/home/ubuntu/aeronerds-CI/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8010
 Restart=always
 RestartSec=5
 
