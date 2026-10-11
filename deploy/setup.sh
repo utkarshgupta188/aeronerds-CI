@@ -4,7 +4,7 @@ set -e
 
 # 1. System deps
 sudo apt-get update -y
-sudo apt-get install -y nginx python3.11 python3.11-venv python3-pip nodejs npm git
+sudo apt-get install -y nginx python3 python3-venv python3-pip nodejs npm git
 
 # 2. Clone repo
 sudo mkdir -p /var/www/bhumi
@@ -13,7 +13,7 @@ git clone https://github.com/utkarshgupta188/aeronerds-CI.git /var/www/bhumi
 cd /var/www/bhumi
 
 # 3. Python venv + deps
-python3.11 -m venv venv
+python3 -m venv venv
 venv/bin/pip install --no-cache-dir -r requirements.txt
 venv/bin/pip install --no-cache-dir cerebras-cloud-sdk
 
